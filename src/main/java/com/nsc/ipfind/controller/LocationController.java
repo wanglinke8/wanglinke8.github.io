@@ -23,15 +23,10 @@ import java.time.ZoneId;
 @RestController
 @RequestMapping("/api/location")
 public class LocationController {
-
     @Autowired
     private LocationService locationService;
-
     @Autowired
     private LocationResultsService locationResultsService;
-
-
-
     /**
      * 获取当前访问者的城市信息
      * 一键调用即可获得详细的地理位置信息
@@ -41,7 +36,7 @@ public class LocationController {
      */
 
     @GetMapping("/current")
-    public String getCurrentCity(HttpServletRequest request) {
+    public LocationResults getCurrentCity(HttpServletRequest request) {
         try {
             // 获取客户端IP地址
             String clientIp = getClientIpAddress(request);
@@ -66,19 +61,16 @@ public class LocationController {
             locationResultsService.save(locationResults);
             System.out.println(locationResults);
             if (locationResults.getCity().equals("获取失败")){
-                return "获取成功，ip地址为"+clientIp;
+                return locationResults;
             }else {
-                return "获取成功，地址为"+locationResults.getCountry()+locationResults.getCity()+locationResults.getProvince();
+                return locationResults;
             }
-
-
-
         } catch (Exception e) {
             // 异常处理，返回错误信息
             LocationResult errorResult = new LocationResult();
             errorResult.setSuccess(false);
             errorResult.setMessage("获取城市信息失败：" + e.getMessage());
-            return "获取成功";
+            return null;
         }
     }
 

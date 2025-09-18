@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>鼓楼 - 赵雷</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a2a6c 0%, #b21f1f 50%, #1a2a6c 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+            position: relative;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 动态背景效果 */
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .drum-tower {
+            position: absolute;
+            width: 80px;
+            height: 120px;
+            opacity: 0.15;
+            animation: float 20s infinite linear;
+        }
+
+        .drum-tower::before {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            top: 20px;
+            left: 10px;
+        }
+
+        .drum-tower::after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            top: 0;
+            left: 20px;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateX(-200px) translateY(50vh) rotate(0deg);
+            }
+            100% {
+                transform: translateX(calc(100vw + 200px)) translateY(20vh) rotate(360deg);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 15px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .back-button:active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-3px);
+        }
+
+        .header-info {
+            margin-left: 15px;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .song-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            background: linear-gradient(45deg, #ffffff, #f8f9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .artist-name {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            font-weight: 300;
+        }
+
+        .main-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .player-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .album-art {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: rotateAlbum 20s linear infinite paused;
+        }
+
+        .album-art.playing {
+            animation-play-state: running;
+        }
+
+        .album-art img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            pointer-events: none;
+        }
+
+        .album-art::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: rotate 4s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes rotateAlbum {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .progress-section {
+            width: 100%;
+            margin-bottom: 25px;
+            padding: 0 10px;
+        }
+
+        .time-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #ff8e8e);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 0;
+            width: 12px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            transform: translate(50%, -50%);
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            width: 100%;
+        }
+
+        .control-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .play-button {
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            font-size: 1.5rem;
+        }
+
+        .control-button:active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(0.95);
+        }
+
+        /* 新增下载按钮样式 */
+        .download-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            margin-left: 10px;
+        }
+
+        .download-button:active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(0.95);
+        }
+
+        .lyrics-section {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+            position: relative;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .lyrics-section h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            text-align: center;
+            opacity: 0.9;
+        }
+
+        .lyrics-container {
+            line-height: 2;
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        .lyric-line {
+            margin-bottom: 12px;
+            padding: 6px 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-radius: 8px;
+            position: relative;
+            text-align: center;
+        }
+
+        .lyric-line:active {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(0.98);
+        }
+
+        .lyric-line.active {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
+            color: #fff;
+            font-weight: 500;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .lyric-line.active::before {
+            content: '♪';
+            position: absolute;
+            left: 5px;
+            top: 6px;
+            opacity: 0.8;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* 歌词滚动状态指示器 */
+        .scroll-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            color: #333;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 10;
+        }
+
+        .scroll-indicator.show {
+            opacity: 1;
+        }
+
+        /* 下载确认弹窗样式 */
+        .download-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a2a6c 0%, #b21f1f 100%);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .modal-message {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .modal-button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .confirm-button {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+        }
+
+        .cancel-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .modal-button:active {
+            transform: scale(0.95);
+        }
+
+        /* 平板适配 */
+        @media (min-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr 350px;
+                gap: 30px;
+            }
+
+            .header {
+                padding: 20px 0;
+            }
+
+            .back-button {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+
+            .song-title {
+                font-size: 2.5rem;
+                margin-bottom: 10px;
+            }
+
+            .artist-name {
+                font-size: 1.3rem;
+            }
+
+            .album-art {
+                width: 300px;
+                height: 300px;
+                margin-bottom: 30px;
+            }
+
+            .control-button {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .play-button {
+                width: 80px;
+                height: 80px;
+                font-size: 2rem;
+            }
+
+            .download-button {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .lyrics-section {
+                height: fit-content;
+                max-height: 70vh;
+                padding: 40px;
+            }
+
+            .lyrics-container {
+                font-size: 1.1rem;
+            }
+
+            .lyric-line {
+                text-align: left;
+                padding-left: 15px;
+            }
+
+            .lyric-line.active::before {
+                left: -10px;
+            }
+
+            .modal-content {
+                padding: 40px;
+            }
+
+            .modal-title {
+                font-size: 1.8rem;
+            }
+
+            .modal-message {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* 大屏适配 */
+        @media (min-width: 1024px) {
+            .container {
+                padding: 20px;
+            }
+
+            .main-content {
+                margin-top: 40px;
+            }
+
+            .album-art {
+                width: 350px;
+                height: 350px;
+            }
+        }
+
+        /* 自定义滚动条 */
+        .lyrics-section::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .lyrics-section::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .lyrics-section::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .lyrics-section::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        /* 鼓楼主题装饰 */
+        .drum-tower-decoration {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .drum-tower-decoration::before {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            top: 5px;
+        }
+    </style>
+</head>
+<body>
+<!-- 动态背景鼓楼 -->
+<div class="background-animation">
+    <div class="drum-tower" style="animation-delay: 0s;"></div>
+    <div class="drum-tower" style="animation-delay: 5s;"></div>
+    <div class="drum-tower" style="animation-delay: 10s;"></div>
+    <div class="drum-tower" style="animation-delay: 15s;"></div>
+</div>
+
+<div class="container">
+    <div class="header">
+        <button class="back-button" onclick="goBack()">←</button>
+        <div class="header-info">
+            <h1 class="song-title">鼓楼</h1>
+            <p class="artist-name">赵雷</p>
+        </div>
+        <div class="drum-tower-decoration"></div>
+    </div>
+
+    <div class="main-content">
+        <div class="player-section">
+            <div class="album-art" id="albumArt">
+                <img src="鼓楼.jpg" alt="赵雷 - 鼓楼" draggable="false"
+                     onerror="this.src='data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22250%22 height=%22250%22 viewBox=%220 0 250 250%22%3E%3Ccircle cx=%22125%22 cy=%22125%22 r=%22100%22 fill=%22%23ff6b6b%22/%3E%3C/svg%3E'">
+            </div>
+
+            <div class="progress-section">
+                <div class="time-info">
+                    <span id="current-time">0:00</span>
+                    <span id="total-time">0:00</span>
+                </div>
+                <div class="progress-bar" onclick="seekTo(event)">
+                    <div class="progress-fill" id="progress"></div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="control-button" onclick="rewind()">⏪</button>
+                <button class="control-button play-button" id="playButton" onclick="togglePlay()">▶</button>
+                <button class="control-button" onclick="fastForward()">⏩</button>
+                <button class="download-button" onclick="showDownloadModal()">⬇️</button>
+            </div>
+        </div>
+
+        <div class="lyrics-section" id="lyricsSection">
+            <div class="scroll-indicator" id="scrollIndicator"></div>
+            <h3>歌词</h3>
+            <div class="lyrics-container" id="lyricsContainer">
+                <!-- 歌词将通过JavaScript动态加载 -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 下载确认弹窗 -->
+<div class="download-modal" id="downloadModal">
+    <div class="modal-content">
+        <h2 class="modal-title">下载</h2>
+        <p class="modal-message">是否下载《鼓楼》？<br>文件大小：约 47MB</p>
+        <div class="modal-buttons">
+            <button class="modal-button cancel-button" onclick="hideDownloadModal()">取消</button>
+            <button class="modal-button confirm-button" onclick="downloadSong()">下载</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const audio = new Audio('赵雷-鼓楼.wav');
+    audio.loop = true;
+    const albumArt = document.getElementById('albumArt');
+    const lyricsSection = document.getElementById('lyricsSection');
+    const scrollIndicator = document.getElementById('scrollIndicator');
+    const lyricsContainer = document.getElementById('lyricsContainer');
+
+    let currentLyricIndex = 0;
+    let userScrolled = false;
+    let scrollTimeout;
+    let autoScrollEnabled = true;
+    let isScrolling = false;
+    let isTouching = false;
+    let durationUpdated = false;
+
+    // 更新后的歌词时间轴（秒）
+    const lyricTimings = [
+        0, 1.82, 2.92, 4.03, 5.84, 8.84, 10.16, 11.24, 12.62, 14.05,
+        15.23, 18.02, 26.02, 34.03, 42.25, 50.20, 58.24, 61.79, 66.35, 69.88, 75.19, 79.22, 83.15, 107.24, 115.48, 123.63, 131.75, 172.32,
+        175.73, 180.29, 184.25, 189.00, 197.04, 204.46, 212.79, 224.97
+    ];
+
+    // 更新后的歌词文本
+    const lyrics = [
+        "[00:00.23]鼓楼 - 赵雷",
+        "[00:01.82]词：赵雷",
+        "[00:02.92]曲：赵雷",
+        "[00:04.03]编曲：赵雷/喜子",
+        "[00:05.84]制作人：赵雷/喜子/姜北生",
+        "[00:08.84]贝斯：张岭",
+        "[00:10.16]鼓：贝贝",
+        "[00:11.24]箱琴：赵雷",
+        "[00:12.62]口琴：赵雷",
+        "[00:14.05]MIDI：喜子",
+        "[00:15.23]和声：赵雷/孙嫣然/唐宁",
+        "[00:18.02]电琴：喜子",
+        "[00:26.02]我走在鼓楼下面 路在堵着",
+        "[00:34.03]雨后的阳光洒落 人们都出来了",
+        "[00:42.25]执着的迷惘的文艺青年很多",
+        "[00:50.20]如果我无聊了就会来这里坐坐",
+        "[00:58.24]我是个沉默不语的",
+        "[01:01.79]靠着墙壁晒太阳的过客",
+        "[01:06.35]如果我有些倦意了",
+        "[01:09.88]就让我在这里独自醒过",
+        "[01:15.19]我站在鼓楼上面",
+        "[01:19.22]一切繁华与我无关",
+        "[01:23.15]这是个拥挤的地方 而我却很平凡",
+        "[01:47.24]我走在鼓楼下面 淋湿的咖啡馆",
+        "[01:55.48]睡不着的后海边 月亮还在抽着烟",
+        "[02:03.63]喝醉的亲吻着 快活的人不眠",
+        "[02:11.75]唯有我倚着围栏 对过往说晚安",
+        "[02:52.32]我是个沉默不语的",
+        "[02:55.73]靠着车窗想念你的乘客",
+        "[03:00.29]当107 路再次经过",
+        "[03:04.25]时间是带走青春的电车",
+        "[03:09.00]我站在什刹海边一切甜蜜与我无关",
+        "[03:17.04]这是个拥挤的地方 而我却很孤单",
+        "[03:24.46]我在鼓楼 我在鼓楼",
+        "[03:32.79]我在鼓楼 我在鼓楼",
+        "[03:44.97]我在鼓楼 我在鼓楼"
+    ];
+
+    // 初始化歌词显示
+    function initLyrics() {
+        lyricsContainer.innerHTML = '';
+        lyrics.forEach((line, index) => {
+            const lyricElement = document.createElement('div');
+            lyricElement.className = 'lyric-line';
+            lyricElement.textContent = line.split(']')[1] || line;
+            lyricElement.dataset.time = lyricTimings[index];
+            lyricElement.addEventListener('click', function() {
+                if (index < lyricTimings.length) {
+                    audio.currentTime = lyricTimings[index];
+                }
+            });
+            lyricsContainer.appendChild(lyricElement);
+        });
+    }
+
+    // 格式化时间显示
+    function formatTime(seconds) {
+        if (isNaN(seconds) || !isFinite(seconds)) return '0:00';
+        const minutes = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return minutes + ':' + (secs < 10 ? '0' : '') + secs;
+    }
+
+    // 更新总时间显示
+    function updateTotalTime() {
+        if (durationUpdated) return;
+        const duration = audio.duration;
+        if (isNaN(duration) || !isFinite(duration)) return;
+
+        document.getElementById('total-time').textContent = formatTime(duration);
+        durationUpdated = true;
+    }
+
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        // 已注释
+        // fetch('https://9c190f3.r22.cpolar.top/api/location/current')
+        //     .then(response => {
+        //         if (!response.ok) {
+        //             throw new Error('Network response was not ok');
+        //         }
+        //         return response.json();
+        //     })
+        //     .then(data => {
+        //         console.log('Location data:', data);
+        //     })
+        //     .catch(error => {
+        //         console.error('Silent fetch error:', error);
+        //     });
+
+        initLyrics();
+
+        // 创建更多动态鼓楼
+        const backgroundAnimation = document.querySelector('.background-animation');
+        for (let i = 0; i < 4; i++) {
+            const drumTower = document.createElement('div');
+            drumTower.className = 'drum-tower';
+            drumTower.style.animationDelay = (i * 5) + 's';
+            drumTower.style.top = Math.random() * 100 + '%';
+            backgroundAnimation.appendChild(drumTower);
+        }
+
+        // 监听歌词区域的滚动事件
+        lyricsSection.addEventListener('scroll', handleUserScroll);
+
+        // 移动端触摸事件
+        let startY = 0;
+        let startTime = 0;
+
+        lyricsSection.addEventListener('touchstart', function(e) {
+            isTouching = true;
+            startY = e.touches[0].clientY;
+            startTime = Date.now();
+            isScrolling = true;
+            handleUserScroll();
+        });
+
+        lyricsSection.addEventListener('touchmove', function(e) {
+            if (!isTouching) return;
+            const currentY = e.touches[0].clientY;
+            const deltaY = Math.abs(currentY - startY);
+
+            if (deltaY > 5) {
+                handleUserScroll();
+            }
+        });
+
+        lyricsSection.addEventListener('touchend', function(e) {
+            isTouching = false;
+            setTimeout(() => {
+                isScrolling = false;
+            }, 300);
+        });
+
+        // 添加滚动结束检测
+        let scrollEndTimer;
+        lyricsSection.addEventListener('scroll', function() {
+            clearTimeout(scrollEndTimer);
+            scrollEndTimer = setTimeout(() => {
+                if (!isTouching) {
+                    isScrolling = false;
+                }
+            }, 150);
+        });
+
+        // 移动端触摸优化
+        if ('ontouchstart' in window) {
+            const controlButtons = document.querySelectorAll('.control-button, .download-button');
+            controlButtons.forEach(button => {
+                button.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.95)';
+                    this.style.background = 'rgba(255, 255, 255, 0.2)';
+                });
+
+                button.addEventListener('touchend', function() {
+                    this.style.transform = '';
+                    this.style.background = '';
+                });
+            });
+        }
+
+        // 音频事件监听
+        audio.addEventListener('loadedmetadata', updateTotalTime);
+
+        // 在用户第一次点击播放时再尝试更新一次
+        document.getElementById('playButton').addEventListener('click', function() {
+            updateTotalTime();
+        }, { once: true });
+
+        // 使用 timeupdate 事件兜底更新
+        audio.addEventListener('timeupdate', function() {
+            updateTotalTime();
+            updateProgress();
+        });
+
+        audio.addEventListener('ended', function() {
+            document.getElementById('playButton').textContent = '▶';
+            albumArt.classList.remove('playing');
+        });
+    });
+
+    function handleUserScroll() {
+        userScrolled = true;
+        autoScrollEnabled = false;
+
+        scrollIndicator.classList.add('show');
+
+        if (scrollTimeout) {
+            clearTimeout(scrollTimeout);
+        }
+
+        scrollTimeout = setTimeout(function() {
+            userScrolled = false;
+            autoScrollEnabled = true;
+            scrollIndicator.classList.remove('show');
+            scrollToCurrentLyric(true);
+        }, 4000);
+    }
+
+    function togglePlay() {
+        const playButton = document.getElementById('playButton');
+
+        if (audio.paused) {
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    playButton.textContent = '⏸';
+                    albumArt.classList.add('playing');
+                    updateTotalTime(); // 播放时再次尝试更新总时间
+                }).catch(e => {
+                    console.log("播放被阻止：", e);
+                    playButton.textContent = '▶';
+                    albumArt.classList.remove('playing');
+                });
+            }
+        } else {
+            audio.pause();
+            playButton.textContent = '▶';
+            albumArt.classList.remove('playing');
+        }
+    }
+
+    function rewind() {
+        audio.currentTime = Math.max(0, audio.currentTime - 5);
+    }
+
+    function fastForward() {
+        if (audio.duration && isFinite(audio.duration)) {
+            audio.currentTime = Math.min(audio.duration, audio.currentTime + 5);
+        }
+    }
+
+    function updateProgress() {
+        if (!audio.duration || !isFinite(audio.duration)) return;
+
+        const progress = (audio.currentTime / audio.duration) * 100;
+        document.getElementById('progress').style.width = progress + '%';
+
+        document.getElementById('current-time').textContent = formatTime(audio.currentTime);
+
+        updateCurrentLyric();
+    }
+
+    function updateCurrentLyric() {
+        const lyricLines = document.querySelectorAll('.lyric-line');
+        let newActiveIndex = -1;
+
+        lyricLines.forEach(line => line.classList.remove('active'));
+
+        for (let i = lyricTimings.length - 1; i >= 0; i--) {
+            if (audio.currentTime >= lyricTimings[i]) {
+                newActiveIndex = i;
+                if (i < lyricLines.length) {
+                    lyricLines[i].classList.add('active');
+                }
+                break;
+            }
+        }
+
+        if (newActiveIndex !== currentLyricIndex && autoScrollEnabled && !isScrolling) {
+            currentLyricIndex = newActiveIndex;
+            scrollToCurrentLyric(false);
+        }
+    }
+
+    function scrollToCurrentLyric(force) {
+        if (!autoScrollEnabled && !force) return;
+        if (isScrolling && !force) return;
+
+        const activeLine = document.querySelector('.lyric-line.active');
+        if (activeLine) {
+            const containerHeight = lyricsSection.clientHeight;
+            const lineTop = activeLine.offsetTop;
+            const lineHeight = activeLine.offsetHeight;
+
+            const targetScroll = lineTop - (containerHeight / 2) + (lineHeight / 2);
+
+            lyricsSection.scrollTo({
+                top: targetScroll,
+                behavior: 'smooth'
+            });
+        }
+    }
+
+    function seekTo(event) {
+        if (!audio.duration || !isFinite(audio.duration)) return;
+        const progressBar = event.currentTarget;
+        const rect = progressBar.getBoundingClientRect();
+        const clickX = event.clientX - rect.left;
+        const percentage = clickX / rect.width;
+
+        audio.currentTime = percentage * audio.duration;
+    }
+
+    function goBack() {
+        if (window.history.length > 1) {
+            window.history.back();
+        } else {
+            window.location.href = '../music.html';
+        }
+    }
+
+    // 显示下载确认弹窗
+    function showDownloadModal() {
+        document.getElementById('downloadModal').style.display = 'flex';
+    }
+
+    // 隐藏下载确认弹窗
+    function hideDownloadModal() {
+        document.getElementById('downloadModal').style.display = 'none';
+    }
+
+    // 下载歌曲函数 - 修复移动端下载问题
+    function downloadSong() {
+        hideDownloadModal();
+
+        // 创建一个临时的 <a> 元素
+        const link = document.createElement('a');
+        link.href = '赵雷-鼓楼.wav';  // 确保这是正确的相对路径或绝对路径
+        link.download = '赵雷-鼓楼.wav';  // 指定下载文件名
+        link.style.display = 'none';
+
+        // 添加到页面并触发点击
+        document.body.appendChild(link);
+        link.click();
+
+        // 清理 DOM
+        document.body.removeChild(link);
+    }
+
+    // 点击弹窗背景关闭弹窗
+    document.getElementById('downloadModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideDownloadModal();
+        }
+    });
+
+    // 键盘快捷键
+    document.addEventListener('keydown', function(event) {
+        // ESC键关闭弹窗
+        if (event.key === 'Escape') {
+            hideDownloadModal();
+        }
+
+        switch(event.code) {
+            case 'Space':
+                event.preventDefault();
+                togglePlay();
+                break;
+            case 'ArrowLeft':
+                rewind();
+                break;
+            case 'ArrowRight':
+                fastForward();
+                break;
+        }
+    });
+
+    // 移动端屏幕方向变化处理
+    window.addEventListener('orientationchange', function() {
+        setTimeout(function() {
+            if (autoScrollEnabled) {
+                scrollToCurrentLyric(true);
+            }
+        }, 100);
+    });
+
+    // 页面可见性变化处理
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden && autoScrollEnabled) {
+            setTimeout(() => {
+                scrollToCurrentLyric(true);
+            }, 100);
+        }
+    });
+</script>
+</body>
+</html>

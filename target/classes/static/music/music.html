@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音乐世界 - Music World</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 动态背景粒子效果 */
+        .background-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.4; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
+        }
+
+        /* 返回按钮样式 */
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeInDown 1s ease-out;
+            padding-top: 40px; /* 为返回按钮留出空间 */
+        }
+
+        .header h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ffffff, #f8f9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .music-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        .music-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .music-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.8s;
+        }
+
+        .music-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .music-card:hover::before {
+            left: 100%;
+        }
+
+        .card-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            font-size: 2.5rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        /* 修改：第2个卡片（鼓楼） */
+        .music-card:nth-child(2) .card-icon {
+            background: linear-gradient(45deg, #ff9a9e, #fecfef);
+            box-shadow: 0 10px 30px rgba(255, 154, 158, 0.3);
+        }
+
+        /* 修改：第3个卡片（烟火里的尘埃） */
+        .music-card:nth-child(3) .card-icon {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            box-shadow: 0 10px 30px rgba(78, 205, 196, 0.3);
+        }
+
+        /* 修改：第4个卡片（关键词） */
+        .music-card:nth-child(4) .card-icon {
+            background: linear-gradient(45deg, #ffd93d, #ff9068);
+            box-shadow: 0 10px 30px rgba(255, 217, 61, 0.3);
+        }
+
+        .music-card:hover .card-icon {
+            transform: rotate(10deg) scale(1.1);
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: white;
+            text-align: center;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        .card-artist {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        .card-description {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        .play-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .music-card:hover .play-button {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .header {
+                margin-bottom: 40px;
+                padding-top: 60px;
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .header p {
+                font-size: 1.1rem;
+            }
+
+            .music-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .music-card {
+                padding: 25px;
+            }
+
+            .card-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 2rem;
+            }
+
+            .card-title {
+                font-size: 1.5rem;
+            }
+
+            .card-artist {
+                font-size: 1rem;
+            }
+
+            .card-description {
+                font-size: 0.9rem;
+            }
+
+            .back-button {
+                width: 45px;
+                height: 45px;
+                font-size: 1.2rem;
+                top: 15px;
+                left: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 15px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+
+            .music-card {
+                padding: 20px;
+            }
+
+            .card-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+                margin-bottom: 20px;
+            }
+
+            .card-title {
+                font-size: 1.3rem;
+            }
+
+            .card-description {
+                font-size: 0.85rem;
+            }
+
+            .play-button {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+        }
+
+        /* 悬浮音符装饰 */
+        .floating-notes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .note {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.1);
+            font-size: 2rem;
+            animation: floatNote 8s infinite linear;
+        }
+
+        @keyframes floatNote {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            90% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- 返回按钮 -->
+<div class="back-button" onclick="goBack()">
+    ←
+</div>
+
+<!-- 动态背景粒子 -->
+<div class="background-particles"></div>
+
+<!-- 悬浮音符 -->
+<div class="floating-notes"></div>
+
+<div class="container">
+    <div class="header">
+        <h1>音乐世界</h1>
+        <p>聆听心灵的旋律，感受音乐的力量</p>
+    </div>
+
+    <div class="music-grid">
+        <div class="music-card" onclick="goToSong('invisible-wings')">
+            <div class="card-icon">🎵</div>
+            <h2 class="card-title">隐形的翅膀</h2>
+            <p class="card-artist">张韶涵</p>
+            <p class="card-description">一首充满希望与力量的经典励志歌曲，用温暖的旋律诉说着梦想的力量</p>
+            <div class="play-button">▶</div>
+        </div>
+
+        <div class="music-card" onclick="goToSong('drum-tower')">
+            <div class="card-icon">🎸</div>
+            <h2 class="card-title">鼓楼</h2>
+            <p class="card-artist">赵雷</p>
+            <p class="card-description">民谣诗人赵雷的经典之作，用质朴的歌词描绘老北京的记忆与乡愁</p>
+            <div class="play-button">▶</div>
+        </div>
+
+        <div class="music-card" onclick="goToSong('dust-in-fireworks')">
+            <div class="card-icon">🎶</div>
+            <h2 class="card-title">烟火里的尘埃</h2>
+            <p class="card-artist">华晨宇</p>
+            <p class="card-description">深情而富有哲思的音乐作品，在绚烂烟火中寻找生命的真谛与意义</p>
+            <div class="play-button">▶</div>
+        </div>
+
+        <div class="music-card" onclick="goToSong('keywords')">
+            <div class="card-icon">🎼</div>
+            <h2 class="card-title">关键词</h2>
+            <p class="card-artist">林俊杰</p>
+            <p class="card-description">细腻动人的情感表达，用简单的关键词编织出复杂的情感世界</p>
+            <div class="play-button">▶</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 创建背景粒子效果
+    function createParticles() {
+        const particlesContainer = document.querySelector('.background-particles');
+        const particleCount = 50;
+
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+
+            // 随机大小和位置
+            const size = Math.random() * 4 + 2;
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 6 + 's';
+            particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+
+            particlesContainer.appendChild(particle);
+        }
+    }
+
+    // 创建悬浮音符
+    function createFloatingNotes() {
+        const notesContainer = document.querySelector('.floating-notes');
+        const notes = ['♪', '♫', '♬', '♩', '♭', '♮', '♯'];
+
+        setInterval(() => {
+            if (document.querySelectorAll('.note').length < 8) {
+                const note = document.createElement('div');
+                note.className = 'note';
+                note.textContent = notes[Math.floor(Math.random() * notes.length)];
+                note.style.left = Math.random() * 100 + '%';
+                note.style.animationDuration = (Math.random() * 3 + 8) + 's';
+
+                notesContainer.appendChild(note);
+
+                // 移除动画完成的音符
+                setTimeout(() => {
+                    if (note.parentNode) {
+                        note.parentNode.removeChild(note);
+                    }
+                }, 11000);
+            }
+        }, 2000);
+    }
+
+    // 返回上一页函数
+    function goBack() {
+        // 添加点击动画效果
+        const backButton = document.querySelector('.back-button');
+        backButton.style.transform = 'scale(0.8)';
+
+        setTimeout(() => {
+            backButton.style.transform = '';
+            // 优先返回上一页，如果没有历史则跳转到主页
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = '../index.html'; // 修改为你的主页路径
+            }
+        }, 150);
+    }
+
+    // 页面跳转函数
+    function goToSong(songId) {
+        // 添加点击动画效果
+        const clickedCard = event.currentTarget;
+        clickedCard.style.transform = 'scale(0.95)';
+
+        setTimeout(() => {
+            // 恢复动画
+            clickedCard.style.transform = '';
+
+            // 根据 songId 跳转到不同的页面
+            switch(songId) {
+                case 'invisible-wings':
+                    window.location.href = 'songs/InvisibleWings.html';
+                    break;
+                case 'drum-tower':
+                    window.location.href = 'songs/DrumTower.html';
+                    break;
+                case 'dust-in-fireworks':
+                    window.location.href = './songs/烟火里的尘埃.html';
+                    break;
+                case 'keywords':
+                    window.location.href = './songs/关键词.html';
+                    break;
+                default:
+                    alert('即将跳转到《' + clickedCard.querySelector('.card-title').textContent + '》播放页面');
+            }
+        }, 150);
+    }
+
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        createParticles();
+        createFloatingNotes();
+
+        // 添加卡片悬停音效提示
+        const cards = document.querySelectorAll('.music-card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+            });
+        });
+
+        // 移动端触摸效果优化
+        if ('ontouchstart' in window) {
+            cards.forEach(card => {
+                card.addEventListener('touchstart', function() {
+                    this.style.transform = 'translateY(-5px) scale(1.01)';
+                    this.style.background = 'rgba(255, 255, 255, 0.15)';
+                });
+
+                card.addEventListener('touchend', function() {
+                    this.style.transform = '';
+                    this.style.background = 'rgba(255, 255, 255, 0.1)';
+                });
+            });
+        }
+    });
+
+    // 响应式调整
+    window.addEventListener('resize', () => {
+        // 重新计算粒子位置等响应式调整
+        const particles = document.querySelectorAll('.particle');
+        particles.forEach(particle => {
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+        });
+    });
+</script>
+</body>
+</html>

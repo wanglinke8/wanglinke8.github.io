@@ -69,8 +69,8 @@
             <option name="tableUIInfoList">
               <list>
                 <TableUIInfo>
-                  <option name="className" value="LocationResults" />
-                  <option name="tableName" value="location_results" />
+                  <option name="className" value="User" />
+                  <option name="tableName" value="user" />
                 </TableUIInfo>
               </list>
             </option>
