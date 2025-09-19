@@ -9,10 +9,11 @@
             <result property="name" column="name" jdbcType="VARCHAR"/>
             <result property="username" column="username" jdbcType="VARCHAR"/>
             <result property="password" column="password" jdbcType="VARCHAR"/>
+            <result property="creattime" column="creatTime" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,name,username,
-        password
+        password,creatTime
     </sql>
 </mapper>

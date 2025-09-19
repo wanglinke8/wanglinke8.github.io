@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,10 +59,21 @@ public class LoginController {
     //注册
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
-        if (userService.save(user)) {
+        // 1. 校验用户名是否已存在
+        User userByUsername = userService.getUserByUsername(user.getUsername());
+        if (userByUsername != null) {
+            return ResponseEntity.badRequest().body("用户名已存在");
+        }
+
+        // 2. 设置注册时间
+        user.setCreattime(new Date());
+
+        // 3. 保存用户（通常 save() 总是返回 true，除非异常）
+        try {
+            userService.save(user);
             return ResponseEntity.ok("注册成功");
-        } else {
-            return ResponseEntity.status(500).body("注册失败");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("注册失败：" + e.getMessage());
         }
     }
 }

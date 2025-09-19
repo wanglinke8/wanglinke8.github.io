@@ -286,6 +286,14 @@
                 min-width: 250px;
             }
         }
+
+        /* IP 显示样式 */
+        #user-ip {
+            margin-top: 5px;
+            font-size: 13px;
+            color: #aaa;
+            font-family: 'Courier New', monospace;
+        }
     </style>
 </head>
 <body>
@@ -338,6 +346,7 @@
     <p style="margin-top: 20px;">
         还没有账号？<a href="zhuce.html" style="color: #007bff; text-decoration: none; font-weight: bold;">立即注册</a>
     </p>
+    <p id="user-ip"></p>
 </div>
 
 <script>
@@ -478,7 +487,7 @@
         const errorElement = document.getElementById('login-error');
 
         try {
-            const response = await fetch('http://localhost:8080/api/auth/login', {
+            const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -501,13 +510,24 @@
         }
     });
 
-    // 检查登录状态（实际环境中使用）
-    // window.addEventListener('DOMContentLoaded', function() {
-    //     const token = localStorage.getItem('token');
-    //     if (token) {
-    //         window.location.href = 'index.html';
-    //     }
-    // });
+    document.addEventListener('DOMContentLoaded', async function () {
+        const ipElement = document.getElementById('user-ip');
+
+        try {
+            const response = await fetch('/api/location/current');
+            if (!response.ok) throw new Error('');
+
+            const data = await response.json();
+            // 优先使用 publicIp，不存在则 fallback 到 clientIp
+            const ip = data.publicIp || data.clientIp || '未知 IP';
+            ipElement.textContent = `${ip}`;
+            ipElement.style.color = '#ccc';
+        } catch (err) {
+            console.error('加载失败:', err);
+            ipElement.textContent = '加载失败';
+            ipElement.style.color = '#ff6b6b';
+        }
+    });
 </script>
 </body>
 </html>

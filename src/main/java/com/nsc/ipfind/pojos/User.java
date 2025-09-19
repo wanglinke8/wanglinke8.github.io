@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
+import java.util.Date;
 import lombok.Data;
 
 /**
@@ -17,7 +18,7 @@ public class User implements Serializable {
     /**
      * 
      */
-    @TableId
+    @TableId(type = IdType.AUTO)
     private Integer id;
 
     /**
@@ -34,6 +35,11 @@ public class User implements Serializable {
      * 
      */
     private String password;
+
+    /**
+     * 
+     */
+    private Date creattime;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -53,7 +59,8 @@ public class User implements Serializable {
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
             && (this.getName() == null ? other.getName() == null : this.getName().equals(other.getName()))
             && (this.getUsername() == null ? other.getUsername() == null : this.getUsername().equals(other.getUsername()))
-            && (this.getPassword() == null ? other.getPassword() == null : this.getPassword().equals(other.getPassword()));
+            && (this.getPassword() == null ? other.getPassword() == null : this.getPassword().equals(other.getPassword()))
+            && (this.getCreattime() == null ? other.getCreattime() == null : this.getCreattime().equals(other.getCreattime()));
     }
 
     @Override
@@ -64,6 +71,7 @@ public class User implements Serializable {
         result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
         result = prime * result + ((getUsername() == null) ? 0 : getUsername().hashCode());
         result = prime * result + ((getPassword() == null) ? 0 : getPassword().hashCode());
+        result = prime * result + ((getCreattime() == null) ? 0 : getCreattime().hashCode());
         return result;
     }
 
@@ -77,6 +85,7 @@ public class User implements Serializable {
         sb.append(", name=").append(name);
         sb.append(", username=").append(username);
         sb.append(", password=").append(password);
+        sb.append(", creattime=").append(creattime);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

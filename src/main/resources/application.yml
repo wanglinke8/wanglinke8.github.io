@@ -8,8 +8,8 @@ spring:
     name: ip-location-service
   datasource:
     url: jdbc:mysql://localhost:3306/ipaddess?useUnicode=true&characterEncoding=utf-8&useSSL=false
-    username: root
-    password: root
+    username: ipaddess
+    password: ipaddess
     driver-class-name: com.mysql.cj.jdbc.Driver
   webflux:
     timeout: 5000
