@@ -10,12 +10,10 @@
             --dial-size: 100vh;
             --accent: #e6e6e6;
         }
-
         html, body {
             height: 100%;
             margin: 0;
         }
-
         body {
             background: var(--bg);
             font-family: Inter, "PingFang SC", "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -26,13 +24,11 @@
             overflow: hidden;
             position: relative;
         }
-
         #stars {
             position: fixed;
             inset: 0;
             z-index: 0;
         }
-
         .stage {
             width: 50vh;
             height: var(--dial-size);
@@ -43,7 +39,6 @@
             overflow: hidden;
             margin-left: 0;
         }
-
         svg.dial {
             width: var(--dial-size);
             height: var(--dial-size);
@@ -54,7 +49,6 @@
             left: calc(-1 * var(--dial-size) / 2);
             top: 0;
         }
-
         .center-value {
             position: absolute;
             z-index: 3;
@@ -77,7 +71,6 @@
             margin-left: 30px;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
-
         .tick-label {
             fill: var(--accent);
             font-size: 16px;
@@ -85,22 +78,18 @@
             text-anchor: middle;
             dominant-baseline: central;
         }
-
         .major-tick {
             stroke: rgba(255, 255, 255, 0.14);
             stroke-width: 2;
         }
-
         .outer-ring {
             fill: none;
             stroke: rgba(255, 255, 255, 0.03);
             stroke-width: 10;
         }
-
         #ticks {
             transform-origin: 0 0;
         }
-
         .arrow-line {
             stroke: #fff;
             stroke-width: 3;
@@ -108,14 +97,12 @@
             stroke-linecap: round;
             stroke-linejoin: round;
         }
-
         .arrow-head {
             fill: #fff;
             stroke: #fff;
             stroke-width: 2;
             stroke-linejoin: round;
         }
-
         .login-container {
             position: absolute;
             top: 50%;
@@ -132,7 +119,6 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             min-width: 300px;
         }
-
         .login-container input {
             width: 100%;
             padding: 12px;
@@ -144,7 +130,6 @@
             font-size: 16px;
             box-sizing: border-box;
         }
-
         .login-container button {
             width: 100%;
             padding: 12px;
@@ -156,22 +141,18 @@
             cursor: pointer;
             transition: background 0.3s ease;
         }
-
         .login-container button:hover {
             background-color: #0056b3;
         }
-
         .error-message {
             color: red;
             margin-top: 10px;
         }
-
         /* 移动端适配 */
         @media screen and (max-width: 768px) {
             :root {
                 --dial-size: 80vh;
             }
-
             body {
                 flex-direction: column;
                 justify-content: flex-start;
@@ -181,7 +162,6 @@
                 overflow-x: hidden;
                 overflow-y: auto;
             }
-
             .stage {
                 width: 40vh;
                 height: var(--dial-size);
@@ -190,11 +170,9 @@
                 top: 0;
                 margin-left: 0;
             }
-
             svg.dial {
                 left: calc(-1 * var(--dial-size) / 2);
             }
-
             .center-value {
                 left: 0;
                 margin-left: 20px;
@@ -202,7 +180,6 @@
                 height: 100px;
                 font-size: 36px;
             }
-
             .login-container {
                 position: relative;
                 top: 85vh;
@@ -215,68 +192,56 @@
                 padding: 25px;
                 margin-bottom: 40px;
             }
-
             .tick-label {
                 font-size: 12px;
             }
         }
-
         /* 小屏幕设备进一步优化 */
         @media screen and (max-width: 480px) {
             :root {
                 --dial-size: 70vh;
             }
-
             body {
                 min-height: 130vh;
                 padding-bottom: 100px;
             }
-
             .stage {
                 width: 35vh;
             }
-
             .center-value {
                 width: 80px;
                 height: 80px;
                 font-size: 28px;
                 margin-left: 15px;
             }
-
             .login-container {
                 top: 80vh;
                 min-width: 260px;
                 padding: 20px;
                 margin-bottom: 60px;
             }
-
             .login-container input,
             .login-container button {
                 font-size: 14px;
                 padding: 10px;
             }
-
             .tick-label {
                 font-size: 10px;
             }
         }
-
         /* 横屏模式优化 */
         @media screen and (max-height: 600px) and (orientation: landscape) {
             :root {
                 --dial-size: 90vh;
             }
-
             body {
                 overflow: hidden;
                 min-height: 100vh;
                 padding-bottom: 0;
             }
-
             .stage {
                 width: 45vh;
             }
-
             .login-container {
                 position: absolute;
                 right: 50px;
@@ -286,7 +251,6 @@
                 min-width: 250px;
             }
         }
-
         /* IP 显示样式 */
         #user-ip {
             margin-top: 5px;
@@ -298,7 +262,6 @@
 </head>
 <body>
 <canvas id="stars"></canvas>
-
 <div class="stage">
     <svg class="dial" viewBox="0 0 600 600">
         <defs>
@@ -316,7 +279,6 @@
                 </feMerge>
             </filter>
         </defs>
-
         <g transform="translate(300,300)">
             <circle r="300" class="outer-ring"/>
             <circle cx="150" cy="0" r="25" fill="url(#circleGrad)" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
@@ -333,12 +295,11 @@
         </g>
     </svg>
 </div>
-
 <!-- 登录表单 -->
 <div id="login-container" class="login-container">
     <h2>用户登录</h2>
     <form id="loginForm">
-        <input type="text" id="username" placeholder="用户名" required />
+        <input type="text" id="zhanghao" placeholder="账号" required />
         <input type="password" id="password" placeholder="密码" required />
         <button type="submit">登录</button>
         <p id="login-error" class="error-message"></p>
@@ -348,16 +309,13 @@
     </p>
     <p id="user-ip"></p>
 </div>
-
 <script>
     let textGroups = [];
-
     (function () {
         const ticksG = document.getElementById('ticks');
         const total = 60;
         const radius = 300;
         const innerMinor = radius - 35;
-
         for (let i = 0; i < total; i++) {
             const index = (total - i) % total;
             const angle = (i / total) * Math.PI * 2;
@@ -366,7 +324,6 @@
             const y1 = Math.round(innerMinor * sin);
             const x2 = Math.round(radius * cos);
             const y2 = Math.round(radius * sin);
-
             const tick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             tick.setAttribute('x1', x1);
             tick.setAttribute('y1', y1);
@@ -374,7 +331,6 @@
             tick.setAttribute('y2', y2);
             tick.setAttribute('class', 'major-tick');
             ticksG.appendChild(tick);
-
             const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             const labelRad = radius - 75;
             const lx = Math.round(labelRad * cos);
@@ -382,13 +338,11 @@
             txt.setAttribute('x', lx);
             txt.setAttribute('y', ly);
             txt.setAttribute('class', 'tick-label');
-
             const textGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
             textGroup.style.transformOrigin = `${lx}px ${ly}px`;
             textGroup.appendChild(txt);
             txt.textContent = index.toString();
             ticksG.appendChild(textGroup);
-
             textGroups.push({
                 group: textGroup,
                 x: lx,
@@ -396,7 +350,6 @@
             });
         }
     })();
-
     (function () {
         const canvas = document.getElementById('stars');
         const ctx = canvas.getContext('2d');
@@ -404,10 +357,8 @@
         let height = window.innerHeight;
         canvas.width = width;
         canvas.height = height;
-
         const stars = [];
         const starCount = 200;
-
         for (let i = 0; i < starCount; i++) {
             stars.push({
                 x: Math.random() * width,
@@ -417,28 +368,21 @@
                 brightness: Math.random() * 0.3 + 0.2
             });
         }
-
         function animate() {
             ctx.clearRect(0, 0, width, height);
-
             stars.forEach(star => {
                 ctx.beginPath();
                 ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-
                 const time = Date.now() * star.speed;
                 const flicker = Math.sin(time) * 0.2 + 0.3;
                 const alpha = star.brightness + flicker;
                 const finalAlpha = Math.max(0.1, Math.min(0.8, alpha));
-
                 ctx.fillStyle = `rgba(255, 255, 255, ${finalAlpha})`;
                 ctx.fill();
             });
-
             requestAnimationFrame(animate);
         }
-
         animate();
-
         window.addEventListener('resize', function () {
             width = window.innerWidth;
             height = window.innerHeight;
@@ -446,60 +390,57 @@
             canvas.height = height;
         });
     })();
-
     (function () {
         const hourText = document.getElementById('hourText');
         const minuteText = document.getElementById('minuteText');
         const ticksElement = document.getElementById('ticks');
-
         ticksElement.style.animation = 'none';
-
         function updateClock() {
             const now = new Date();
             const hours = now.getHours();
             const minutes = now.getMinutes();
             const seconds = now.getSeconds();
             const milliseconds = now.getMilliseconds();
-
             hourText.textContent = hours.toString().padStart(2, '0');
             minuteText.textContent = minutes.toString().padStart(2, '0');
-
             const totalSeconds = hours * 3600 + minutes * 60 + seconds + milliseconds / 1000;
             const rotationDegrees = (totalSeconds / 60) * 360;
-
             ticksElement.style.transform = `rotate(${rotationDegrees}deg)`;
-
             textGroups.forEach(textInfo => {
                 textInfo.group.style.transform = `rotate(${-rotationDegrees}deg)`;
             });
         }
-
         setInterval(updateClock, 16);
         updateClock();
     })();
-
     // 登录功能
     document.getElementById('loginForm').addEventListener('submit', async function (e) {
         e.preventDefault();
-
-        const username = document.getElementById('username').value.trim();
+        const zhanghao = document.getElementById('zhanghao').value.trim();
         const password = document.getElementById('password').value.trim();
         const errorElement = document.getElementById('login-error');
-
         try {
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ zhanghao, password })
             });
-
             const data = await response.json();
-
             if (response.ok) {
+                // --- 关键修改点：保存 id ---
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('name', data.name);
+                // 确保 data.id 存在并且是有效的数字或字符串
+                if (data.id !== undefined && data.id !== null) {
+                    localStorage.setItem('id', data.id.toString()); // 转成字符串存储更安全
+                } else {
+                    console.error('登录响应中缺少用户 ID');
+                    // 可以选择在这里处理错误，比如 alert 或者不保存 id
+                    // 但最好后端确保返回 id
+                }
+                // --- 关键修改点结束 ---
                 window.location.href = 'index.html';
             } else {
                 errorElement.textContent = data.message || '登录失败，请重试';
@@ -509,14 +450,11 @@
             errorElement.textContent = '网络错误，请检查连接';
         }
     });
-
     document.addEventListener('DOMContentLoaded', async function () {
         const ipElement = document.getElementById('user-ip');
-
         try {
             const response = await fetch('/api/location/current');
             if (!response.ok) throw new Error('');
-
             const data = await response.json();
             // 优先使用 publicIp，不存在则 fallback 到 clientIp
             const ip = data.publicIp || data.clientIp || '';

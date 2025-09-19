@@ -29,13 +29,13 @@ public class LoginController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        String username = request.getUsername();
+        String zhanghao = request.getZhanghao();
         String password = request.getPassword();
 
-        User user = userService.getUserByUsername(username);
+        User user = userService.getUserByUsername(zhanghao);
         if (user == null) {
             Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("message", "用户名错误");
+            errorResponse.put("message", "账号错误");
             return ResponseEntity.status(401).body(errorResponse);
         }
 
@@ -46,11 +46,11 @@ public class LoginController {
         }
 
         // 登录成功逻辑不变
-        String token = jwtUtil.generateToken(user.getUsername());
+        String token = jwtUtil.generateToken(user.getZhanghao());
 
         Map<String, Object> response = new HashMap<>();
         response.put("token", token);
-        response.put("username", user.getUsername());
+        response.put("zhanghao", user.getZhanghao());
         response.put("name", user.getName());
         response.put("id", user.getId());
 
@@ -59,10 +59,15 @@ public class LoginController {
     //注册
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
-        // 1. 校验用户名是否已存在
-        User userByUsername = userService.getUserByUsername(user.getUsername());
+        // 1. 校验账号是否已存在
+        User userByUsername = userService.getUserByUsername(user.getZhanghao());
         if (userByUsername != null) {
-            return ResponseEntity.badRequest().body("用户名已存在");
+            return ResponseEntity.badRequest().body("账号已存在");
+        }
+        //校验昵称是否存在
+        User userByName = userService.getByname(user.getName());
+        if (userByName != null) {
+            return ResponseEntity.badRequest().body("昵称已存在");
         }
 
         // 2. 设置注册时间

@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聊天</title>
+    <!-- 引入本地的 SockJS 和 Stomp.js -->
+    <script src="./js/sockjs.min.js"></script>
+    <script src="./js/stomp.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f0f0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 头部 */
+        .chat-header {
+            background-color: #075e54; /* WhatsApp 绿色 */
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            flex-shrink: 0; /* 防止头部被压缩 */
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .back-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #25d366; /* WhatsApp 对话气泡绿色 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .chat-title {
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        /* 聊天记录区域 */
+        .chat-messages {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f0f0"/><path d="M0 50 Q 25 30, 50 50 T 100 50" stroke="%23e0e0e0" fill="none" stroke-width="1"/></svg>'); /* 可选：添加聊天背景图案 */
+            background-size: 100px 100px;
+        }
+
+        /* 消息气泡容器 */
+        .message-container {
+            display: flex;
+            margin-bottom: 15px;
+            max-width: 75%;
+            position: relative;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 接收方消息 (左侧) */
+        .received-message {
+            align-self: flex-start;
+        }
+
+        .received-message .message-bubble {
+            background-color: white;
+            color: #333;
+            border-top-left-radius: 5px; /* 左上角不圆角 */
+        }
+
+        /* 发送方消息 (右侧) */
+        .sent-message {
+            align-self: flex-end;
+        }
+
+        .sent-message .message-bubble {
+            background-color: #dcf8c6; /* WhatsApp 发送方绿色 */
+            color: #333;
+            border-top-right-radius: 5px; /* 右上角不圆角 */
+        }
+
+        /* 消息气泡 */
+        .message-bubble {
+            padding: 10px 15px;
+            border-radius: 7.5px;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+            word-wrap: break-word;
+            word-break: break-all;
+        }
+
+        .message-info {
+            font-size: 0.75em;
+            color: #999;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        /* 输入区域 */
+        .chat-input-area {
+            background-color: #f0f0f0;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0; /* 防止输入区域被压缩 */
+            border-top: 1px solid #ddd;
+        }
+
+        .message-input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+            font-size: 1em;
+            resize: none; /* 禁止拖拽调整大小 */
+            min-height: 20px;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .send-button {
+            background-color: #075e54;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            flex-shrink: 0;
+        }
+
+        .send-button:hover {
+            background-color: #128c7e;
+        }
+
+        .send-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        /* 加载和错误提示 */
+        .loading, .error-message {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .error-message {
+            color: red;
+        }
+
+        /* 系统消息 (例如 "对方正在输入...") - 可选 */
+        .system-message {
+            align-self: center;
+            font-size: 0.8em;
+            color: #888;
+            margin: 5px 0;
+            text-align: center;
+            max-width: 80%;
+        }
+        .system-message .message-bubble {
+            background-color: transparent;
+            box-shadow: none;
+            padding: 2px 10px;
+            color: #888;
+        }
+
+        /* 连接状态指示器 */
+        .connection-status {
+            font-size: 0.8em;
+            color: #ff9800; /* 橙色表示连接中或警告 */
+            margin-left: 10px;
+        }
+        .connection-status.connected {
+            color: #4caf50; /* 绿色表示已连接 */
+        }
+        .connection-status.disconnected {
+            color: #f44336; /* 红色表示断开连接 */
+        }
+
+    </style>
+</head>
+<body>
+<div class="chat-header">
+    <div class="header-left">
+        <button class="back-button" onclick="goBack()">&larr;</button>
+        <div class="avatar" id="targetUserAvatar">?</div>
+        <div class="chat-title" id="targetUserName">加载中...</div>
+        <span class="connection-status" id="connectionStatus">连接中...</span> <!-- 新增连接状态指示器 -->
+    </div>
+    <!-- 可以在这里添加更多头部操作按钮，如通话、视频、更多信息等 -->
+</div>
+
+<div class="chat-messages" id="chatMessages">
+    <div class="loading">正在加载聊天记录...</div>
+    <!-- 聊天消息将在这里动态添加 -->
+</div>
+
+<div class="chat-input-area">
+    <textarea class="message-input" id="messageInput" placeholder="输入消息..." rows="1"></textarea>
+    <button class="send-button" id="sendButton" disabled>&#9658;</button> <!-- 使用播放符号作为发送图标 -->
+</div>
+
+<script>
+    // 全局变量
+    let currentUserId = null; // 当前登录用户的ID (需要从 token 或后端获取)
+    let targetUserId = null;  // 聊天对象的ID
+    let targetUserName = null; // 聊天对象的名称
+    // --- WebSocket 相关变量 ---
+    let stompClient = null;
+    let isConnected = false;
+
+    // 检查登录状态并初始化
+    function initChat() {
+        const token = localStorage.getItem('token');
+        const name = localStorage.getItem('name');
+        const idStr = localStorage.getItem('id'); // 获取字符串形式的 ID
+
+        if (!token || !name || !idStr) { // 检查 id 是否存在
+            alert('未登录或用户信息缺失，请先登录');
+            window.location.href = 'login.html';
+            return false;
+        }
+
+        // 尝试将 ID 转换为整数
+        const parsedId = parseInt(idStr, 10);
+        if (isNaN(parsedId)) {
+            alert('用户信息错误，请重新登录');
+            console.error('LocalStorage 中的 id 无法转换为数字:', idStr);
+            // 清除可能损坏的登录信息
+            localStorage.removeItem('token');
+            localStorage.removeItem('name');
+            localStorage.removeItem('id');
+            window.location.href = 'login.html';
+            return false;
+        }
+
+        currentUserId = parsedId; // currentUserId 现在是数字类型
+
+        // 从 URL 获取目标用户信息
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetUserIdStr = urlParams.get('targetUserId');
+        targetUserName = urlParams.get('targetUserName');
+
+        if (!targetUserIdStr || !targetUserName) {
+            alert('缺少聊天对象信息');
+            window.location.href = 'liaotian.html'; // 或返回主页
+            return false;
+        }
+
+        // 尝试将目标用户 ID 转换为整数
+        const parsedTargetUserId = parseInt(targetUserIdStr, 10);
+        if (isNaN(parsedTargetUserId)) {
+            alert('聊天对象信息错误');
+            console.error('URL 参数 targetUserId 无法转换为数字:', targetUserIdStr);
+            window.location.href = 'liaotian.html';
+            return false;
+        }
+
+        targetUserId = parsedTargetUserId;
+
+        // 更新UI
+        document.getElementById('targetUserName').textContent = decodeURIComponent(targetUserName);
+        // 更新头像文字
+        const avatarText = decodeURIComponent(targetUserName).charAt(0).toUpperCase();
+        document.getElementById('targetUserAvatar').textContent = avatarText;
+        document.getElementById('targetUserAvatar').style.backgroundColor = getRandomColor();
+
+        // 启用输入框和发送按钮 (根据需要)
+        enableInput();
+
+        // 加载聊天历史记录
+        loadChatHistory();
+
+        // --- 新增：连接 WebSocket ---
+        connectWebSocket();
+        // --- 新增结束 ---
+
+        return true;
+    }
+
+    // 加载聊天历史记录 (调用后端接口)
+    async function loadChatHistory() {
+        const chatMessagesElement = document.getElementById('chatMessages');
+        chatMessagesElement.innerHTML = '<div class="loading">正在加载聊天记录...</div>';
+
+        try {
+            // 调用后端接口获取历史消息
+            // 注意：URL 中的 targetUserId 是通过查询参数传递的
+            const response = await fetch(`/api/messages/history?targetUserId=${targetUserId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+            if (data.code === 200) {
+                displayMessages(data.data); // data.data 是消息数组
+            } else {
+                throw new Error(data.message || '加载聊天记录失败');
+            }
+
+        } catch (error) {
+            console.error('加载聊天记录失败:', error);
+            chatMessagesElement.innerHTML = `<div class="error-message">加载聊天记录失败: ${error.message}</div>`;
+        }
+    }
+
+    // 展示消息列表
+    function displayMessages(messages) {
+        const chatMessagesElement = document.getElementById('chatMessages');
+        chatMessagesElement.innerHTML = ''; // 清空加载提示
+
+        if (!messages || messages.length === 0) {
+            chatMessagesElement.innerHTML = '<div class="system-message"><div class="message-bubble">还没有聊天记录</div></div>';
+            return;
+        }
+
+        messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)); // 确保按时间排序
+
+        messages.forEach(msg => {
+            appendMessage(msg.senderId, msg.content, new Date(msg.timestamp));
+        });
+
+        // 滚动到底部
+        scrollToBottom();
+    }
+
+    // 添加单条消息到聊天区域
+    function appendMessage(senderId, content, timestamp) {
+        const chatMessagesElement = document.getElementById('chatMessages');
+
+        const messageContainer = document.createElement('div');
+        messageContainer.className = 'message-container';
+
+        const isSent = senderId === currentUserId;
+        messageContainer.classList.add(isSent ? 'sent-message' : 'received-message');
+
+        const formattedTime = timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        messageContainer.innerHTML = `
+                <div class="message-bubble">
+                    ${content}
+                    <div class="message-info">${formattedTime}</div>
+                </div>
+            `;
+
+        chatMessagesElement.appendChild(messageContainer);
+
+        // 滚动到底部
+        scrollToBottom();
+    }
+
+    // --- WebSocket 相关函数 ---
+    // --- WebSocket 连接函数 ---
+    function connectWebSocket() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            console.error('No token found, cannot connect to WebSocket');
+            updateConnectionStatus('未登录', 'disconnected');
+            alert('未登录，无法建立实时连接');
+            return;
+        }
+
+        // 1. 创建 SockJS 连接，并将 token 作为查询参数传递
+        const socket = new SockJS('/ws?token=Bearer ' + token); // 注意 URL 和 token 格式
+
+        // 2. 创建 STOMP 客户端
+        stompClient = Stomp.over(socket);
+
+        // 3. 连接到服务器
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+            isConnected = true;
+            updateConnectionStatus('已连接', 'connected');
+            // 显示连接成功的提示 (可选)
+            // appendSystemMessage("已连接到聊天服务器");
+
+            // 4. 订阅接收发送给当前用户的消息
+            // 注意：这里的订阅路径需要与后端 ChatController 中发送的路径一致
+            const subscriptionTopic = `/topic/messages/user/${currentUserId}`;
+            stompClient.subscribe(subscriptionTopic, function (messageOutput) {
+                // 5. 处理收到的消息
+                handleReceivedMessage(JSON.parse(messageOutput.body));
+            });
+
+            // (可选) 发送加入消息
+            // const joinMessage = {
+            //     type: 'JOIN',
+            //     sender: localStorage.getItem('name'), // 或 zhanghao
+            //     content: '加入了聊天'
+            // };
+            // stompClient.send("/app/chat.addUser", {}, JSON.stringify(joinMessage));
+
+        }, function (error) {
+            console.error('STOMP error: ' + error);
+            isConnected = false;
+            updateConnectionStatus('连接失败', 'disconnected');
+            // 显示连接失败的提示 (可选)
+            // appendSystemMessage("连接聊天服务器失败: " + error);
+        });
+    }
+
+    // --- 更新连接状态显示 ---
+    function updateConnectionStatus(statusText, statusClass) {
+        const statusElement = document.getElementById('connectionStatus');
+        statusElement.textContent = statusText;
+        statusElement.className = 'connection-status ' + statusClass;
+    }
+
+    // --- 处理接收到的消息 ---
+    function handleReceivedMessage(payload) {
+        console.log("Received message via WebSocket:", payload);
+        // payload 是 ChatMessage DTO 的 JSON 形式
+        if (payload.type === 'CHAT') {
+            // 确保消息是发给当前聊天对象的
+            if (payload.senderId === targetUserId) {
+                // 使用 appendMessage 显示消息
+                // 注意：后端发送的 payload 应该包含 timestamp，如果没有，可以使用当前时间
+                const timestamp = payload.timestamp ? new Date(payload.timestamp) : new Date();
+                appendMessage(payload.senderId, payload.content, timestamp);
+            } else {
+                // 收到了不是当前聊天对象发来的消息，可能是其他对话的，可以选择忽略或提示
+                console.log("Received message from non-current chat partner:", payload.senderId);
+                // 可以在这里添加全局消息提醒逻辑
+            }
+        }
+        // 可以处理 JOIN, LEAVE 等其他类型的消息
+    }
+
+    // --- (可选) 添加系统消息显示函数 ---
+    // function appendSystemMessage(content) {
+    //     const chatMessagesElement = document.getElementById('chatMessages');
+    //     const messageContainer = document.createElement('div');
+    //     messageContainer.className = 'message-container system-message';
+    //     messageContainer.innerHTML = `<div class="message-bubble">${content}</div>`;
+    //     chatMessagesElement.appendChild(messageContainer);
+    //     scrollToBottom();
+    // }
+
+    // --- 修改 sendMessage 函数以使用 WebSocket ---
+    // 发送消息 (调用后端接口)
+    async function sendMessage() {
+        const inputElement = document.getElementById('messageInput');
+        const content = inputElement.value.trim();
+
+        if (!content) return;
+
+        const sendButton = document.getElementById('sendButton');
+        sendButton.disabled = true;
+
+        try {
+            // 1. 立即在本地显示消息 (乐观更新)
+            const tempTimestamp = new Date();
+            appendMessage(currentUserId, content, tempTimestamp);
+
+            // 2. 清空输入框
+            inputElement.value = '';
+            inputElement.style.height = 'auto';
+            adjustInputHeight();
+            disableSendButton();
+
+            // --- 关键修改点：通过 WebSocket 发送消息 ---
+            if (isConnected && stompClient) {
+                const chatMessage = {
+                    type: 'CHAT',
+                    content: content,
+                    sender: localStorage.getItem('name'), // 或 zhanghao
+                    senderId: currentUserId,
+                    receiverId: targetUserId
+                };
+                // 发送到后端的 @MessageMapping("/chat.sendMessage")
+                stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
+                console.log("Message sent via WebSocket:", chatMessage);
+            } else {
+                console.warn("WebSocket is not connected, falling back to REST API");
+                // 如果 WebSocket 未连接，回退到原来的 REST API (可选)
+                const response = await fetch('/api/messages/send', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        receiverId: targetUserId,
+                        content: content
+                    })
+                });
+
+                const data = await response.json();
+                if (data.code !== 200) {
+                    console.error('发送消息失败 (REST API):', data.message);
+                    alert('发送消息失败: ' + data.message);
+                } else {
+                    console.log("消息发送成功 (REST API):", data);
+                }
+            }
+            // --- 关键修改点结束 ---
+
+        } catch (error) {
+            console.error('发送消息时出错:', error);
+            alert('发送消息失败: ' + error.message);
+        } finally {
+            sendButton.disabled = false;
+        }
+    }
+
+    // 回到上一页 (聊天用户选择页面)
+    function goBack() {
+        // (可选) 发送离开消息
+        // if (isConnected && stompClient) {
+        //     const leaveMessage = {
+        //         type: 'LEAVE',
+        //         sender: localStorage.getItem('name'),
+        //         content: '离开了聊天'
+        //     };
+        //     stompClient.send("/app/chat.addUser", {}, JSON.stringify(leaveMessage));
+        // }
+        window.location.href = 'liaotian.html';
+    }
+
+    // 调整输入框高度以适应内容
+    function adjustInputHeight() {
+        const inputElement = document.getElementById('messageInput');
+        inputElement.style.height = 'auto'; // 重置高度
+        const newHeight = Math.min(inputElement.scrollHeight, 100); // 限制最大高度
+        inputElement.style.height = newHeight + 'px';
+    }
+
+    // 启用输入框和发送按钮
+    function enableInput() {
+        const inputElement = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        inputElement.disabled = false;
+        // 输入框内容变化时检查是否启用发送按钮
+        inputElement.addEventListener('input', function() {
+            adjustInputHeight();
+            if (this.value.trim()) {
+                sendButton.disabled = false;
+            } else {
+                sendButton.disabled = true;
+            }
+        });
+        // 回车发送 (无 Shift)
+        inputElement.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault(); // 阻止换行
+                if (!sendButton.disabled) {
+                    sendMessage();
+                }
+            }
+        });
+        // 初始状态根据是否有内容决定
+        if (inputElement.value.trim()) {
+            sendButton.disabled = false;
+        } else {
+            sendButton.disabled = true;
+        }
+    }
+
+    // 禁用发送按钮
+    function disableSendButton() {
+        document.getElementById('sendButton').disabled = true;
+    }
+
+    // 滚动聊天记录到底部
+    function scrollToBottom() {
+        const chatMessagesElement = document.getElementById('chatMessages');
+        chatMessagesElement.scrollTop = chatMessagesElement.scrollHeight;
+    }
+
+    // 生成随机颜色用于头像背景 (简单示例)
+    function getRandomColor() {
+        const colors = ['#25d366', '#075e54', '#128c7e', '#008069', '#34b7f1', '#25d366'];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    // 页面加载完成后执行初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        if (!initChat()) {
+            return; // 如果初始化失败（如未登录），则不继续
+        }
+
+        // 初始化输入框高度调整
+        adjustInputHeight();
+    });
+
+    // --- 页面卸载时断开 WebSocket 连接 ---
+    window.addEventListener('beforeunload', function() {
+        if (isConnected && stompClient) {
+            // (可选) 发送离开消息
+            // const leaveMessage = {
+            //     type: 'LEAVE',
+            //     sender: localStorage.getItem('name'),
+            //     content: '离开了聊天'
+            // };
+            // stompClient.send("/app/chat.addUser", {}, JSON.stringify(leaveMessage));
+            stompClient.disconnect();
+            console.log("Disconnected from WebSocket");
+        }
+    });
+</script>
+</body>
+</html>

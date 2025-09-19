@@ -147,7 +147,8 @@
         }
         /* 修复：为带背景的卡片添加一个伪元素来承载背景图 */
         .module-card.video-module::before,
-        .module-card.game-module::before {
+        .module-card.game-module::before,
+        .module-card.chat-module::before {
             content: '';
             position: absolute;
             top: 0;
@@ -168,6 +169,10 @@
 
         .module-card.game-module::before {
             background-image: url('./img/牢达.jpg');
+        }
+
+        .module-card.chat-module::before {
+            background-image: url('./img/chat.jpg'); /* 请确保有这张图片 */
         }
 
         .module-card:hover {
@@ -314,6 +319,7 @@
         <!-- 导航链接始终横向显示 -->
         <ul class="nav-links" id="navLinks">
             <li><a href="#home">首页</a></li>
+            <li><a href="#chat">聊天</a></li> <!-- 新增聊天导航 -->
             <li><a href="#music">音乐</a></li>
             <li><a href="#video">视频</a></li>
             <li><a href="#games">游戏</a></li>
@@ -334,6 +340,15 @@
         <p class="hero-subtitle">探索音乐、视频、游戏和更多精彩内容<br>在这里发现无限可能</p>
     </section>
     <section class="modules-grid">
+        <!-- 聊天模块 (新增) -->
+        <div class="module-wrapper" id="chat">
+            <div class="module-icon"><i class="fas fa-comments"></i></div>
+            <h3 class="module-title">用户聊天</h3>
+            <p class="module-description">与朋友或社区成员实时交流，分享想法和乐趣。加入我们的聊天室吧！</p>
+            <div class="module-card chat-module">
+                <button class="module-button" onclick="openChat()">开始聊天</button>
+            </div>
+        </div>
         <!-- 音乐 -->
         <div class="module-wrapper" id="music">
             <div class="module-icon"><i class="fas fa-music"></i></div>
@@ -412,10 +427,15 @@
         document.querySelector(target).scrollIntoView({behavior: 'smooth'});
     }
 
-    // 音乐模块占位符函数
+    // 跳转到聊天页面
+    function openChat() {
+        window.location.href = 'liaotian.html';
+    }
+
+    // 音乐模块跳转函数 (修改为跳转到 music.html)
     function openMusic(){
-        // window.location.href='./music/music.html';
-        document.getElementById('music-placeholder').style.display = 'flex'; // 显示占位符
+        window.location.href = './music/music.html';
+        // document.getElementById('music-placeholder').style.display = 'flex'; // 原来的占位符显示逻辑已注释掉
     }
 
     // 修复后的视频打开函数
@@ -655,7 +675,7 @@
         // 弹出确认对话框
         if (confirm('确定退出？')) {
             localStorage.removeItem('token');
-            localStorage.removeItem('username');
+            localStorage.removeItem('zhanghao');
             window.location.href = 'login.html';
         }
     }
@@ -686,7 +706,7 @@
             videoButton.addEventListener('click', openVideo);
         }
 
-        // 为音乐按钮添加点击事件 (使用新的占位符逻辑)
+        // 为音乐按钮添加点击事件 (使用新的跳转逻辑)
         const musicButton = document.getElementById('musicButton');
         if (musicButton) {
             musicButton.addEventListener('click', openMusic);

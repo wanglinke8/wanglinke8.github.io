@@ -7,7 +7,7 @@ spring:
   application:
     name: ip-location-service
   datasource:
-    url: jdbc:mysql://localhost:3306/ipaddess?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    url: jdbc:mysql://39.97.174.238:3306/ipaddess?useUnicode=true&characterEncoding=utf-8&useSSL=false
     username: ipaddess
     password: ipaddess
     driver-class-name: com.mysql.cj.jdbc.Driver
