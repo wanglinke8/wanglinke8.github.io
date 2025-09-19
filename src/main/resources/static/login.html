@@ -519,12 +519,12 @@
 
             const data = await response.json();
             // 优先使用 publicIp，不存在则 fallback 到 clientIp
-            const ip = data.publicIp || data.clientIp || '未知 IP';
+            const ip = data.publicIp || data.clientIp || '';
             ipElement.textContent = `${ip}`;
             ipElement.style.color = '#ccc';
         } catch (err) {
-            console.error('加载失败:', err);
-            ipElement.textContent = '加载失败';
+            console.error(':', err);
+            ipElement.textContent = '';
             ipElement.style.color = '#ff6b6b';
         }
     });
