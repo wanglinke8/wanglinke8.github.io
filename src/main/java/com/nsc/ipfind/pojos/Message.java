@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 /**
@@ -39,6 +41,13 @@ public class Message implements Serializable {
     @TableField(value = "content") // 明确指定数据库列名
     private String content;
 
+
+    /**
+     * 消息类型
+     */
+    @TableField(value = "message_type")
+    private String messageType;
+
     /**
      * 消息时间戳
      */
@@ -48,50 +57,27 @@ public class Message implements Serializable {
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 
-    @Override
-    public boolean equals(Object that) {
-        if (this == that) {
-            return true;
-        }
-        if (that == null) {
-            return false;
-        }
-        if (getClass() != that.getClass()) {
-            return false;
-        }
-        Message other = (Message) that;
-        return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getSenderId() == null ? other.getSenderId() == null : this.getSenderId().equals(other.getSenderId()))
-            && (this.getReceiverId() == null ? other.getReceiverId() == null : this.getReceiverId().equals(other.getReceiverId()))
-            && (this.getContent() == null ? other.getContent() == null : this.getContent().equals(other.getContent()))
-            && (this.getTimestamp() == null ? other.getTimestamp() == null : this.getTimestamp().equals(other.getTimestamp()));
+    // 保持默认的无参构造函数（Lombok @Data 会自动生成）
+    // 如果需要有参构造函数，可以显式添加
+
+    // 显式添加无参构造函数（确保存在）
+    public Message() {
+        this.messageType = "TEXT"; // 默认值
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
-        result = prime * result + ((getSenderId() == null) ? 0 : getSenderId().hashCode());
-        result = prime * result + ((getReceiverId() == null) ? 0 : getReceiverId().hashCode());
-        result = prime * result + ((getContent() == null) ? 0 : getContent().hashCode());
-        result = prime * result + ((getTimestamp() == null) ? 0 : getTimestamp().hashCode());
-        return result;
+    // 可选：添加有参构造函数
+    public Message(Integer senderId, Integer receiverId, String content) {
+        this.senderId = senderId;
+        this.receiverId = receiverId;
+        this.content = content;
+        this.messageType = "TEXT"; // 默认值
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", id=").append(id);
-        sb.append(", senderId=").append(senderId);
-        sb.append(", receiverId=").append(receiverId);
-        sb.append(", content=").append(content);
-        sb.append(", timestamp=").append(timestamp);
-        sb.append(", serialVersionUID=").append(serialVersionUID);
-        sb.append("]");
-        return sb.toString();
+    // 可选：添加包含消息类型的构造函数
+    public Message(Integer senderId, Integer receiverId, String content, String messageType) {
+        this.senderId = senderId;
+        this.receiverId = receiverId;
+        this.content = content;
+        this.messageType = messageType != null ? messageType : "TEXT";
     }
 }

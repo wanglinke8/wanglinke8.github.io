@@ -22,4 +22,11 @@ public class SendMessageRequest {
     private String content;
 
     // Lombok @Data 会处理 getter/setter
+
+    private String messageType; // 新增字段，默认为TEXT
+
+    // 构造函数
+    public SendMessageRequest() {
+        this.messageType = "TEXT";
+    }
 }

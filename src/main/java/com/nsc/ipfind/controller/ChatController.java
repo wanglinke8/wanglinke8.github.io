@@ -7,6 +7,7 @@ import com.nsc.ipfind.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
@@ -24,47 +25,48 @@ public class ChatController {
     private MessageService messageService;
 
     @MessageMapping("/chat.sendMessage")
-    public void sendMessage(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor) {
-        String zhanghao = (String) headerAccessor.getSessionAttributes().get("zhanghao");
+    public void sendMessage(@Payload ChatMessage chatMessage) {
+        try {
+            System.out.println("收到WebSocket消息: " + chatMessage);
 
-        if (zhanghao != null && !zhanghao.isEmpty()) {
-            chatMessage.setSender(zhanghao);
+            // 保存消息到数据库
+            if (chatMessage.getSenderId() != null && chatMessage.getReceiverId() != null) {
+                Message message = new Message();
+                message.setSenderId(chatMessage.getSenderId());
+                message.setReceiverId(chatMessage.getReceiverId());
+                message.setContent(chatMessage.getContent());
 
-            System.out.println("Authenticated user sending message: " + zhanghao);
-
-            // --- 新增：保存消息到数据库 ---
-            try {
-                Message dbMessage = new Message();
-                // 将 ChatMessage 的属性复制到 Message 实体
-                // 注意：需要确保字段名匹配或手动设置
-                dbMessage.setSenderId(chatMessage.getSenderId());
-                dbMessage.setReceiverId(chatMessage.getReceiverId());
-                dbMessage.setContent(chatMessage.getContent());
-                // timestamp 由数据库自动设置 CURRENT_TIMESTAMP，或者你可以在这里设置 new Date()
-                // dbMessage.setTimestamp(new Date());
-
-                boolean isSaved = messageService.save(dbMessage);
-                if (isSaved) {
-                    System.out.println("Message saved to database: " + dbMessage.getId());
-                    // (可选) 将数据库生成的 ID 和 timestamp 更新到 chatMessage 对象，
-                    // 然后发送给客户端，这样客户端可以更新本地显示的消息 ID
-                    // chatMessage.setId(dbMessage.getId());
-                    // chatMessage.setTimestamp(dbMessage.getTimestamp());
+                // 设置消息类型
+                String messageType = chatMessage.getMessageType();
+                if (messageType == null || messageType.isEmpty()) {
+                    // 根据内容判断消息类型
+                    if (chatMessage.getContent() != null &&
+                            chatMessage.getContent().startsWith("/uploads/")) {
+                        message.setMessageType("IMAGE");
+                    } else {
+                        message.setMessageType("TEXT");
+                    }
                 } else {
-                    System.err.println("Failed to save message to database.");
+                    message.setMessageType(messageType);
                 }
-            } catch (Exception e) {
-                System.err.println("Error saving message to database: " + e.getMessage());
-                e.printStackTrace();
+
+                // 保存到数据库
+                boolean isSaved = messageService.save(message);
+                if (isSaved) {
+                    System.out.println("消息已保存到数据库: " + message.getId());
+                } else {
+                    System.err.println("消息保存失败");
+                }
             }
-            // --- 新增结束 ---
 
-            // 构造发送给接收者的主题路径
-            String recipientTopic = "/topic/messages/user/" + chatMessage.getReceiverId();
-            messagingTemplate.convertAndSend(recipientTopic, chatMessage);
+            // 发送消息给接收者
+            String destination = "/topic/messages/user/" + chatMessage.getReceiverId();
+            messagingTemplate.convertAndSend(destination, chatMessage);
+            System.out.println("消息已发送到: " + destination);
 
-        } else {
-            System.out.println("Unauthorized message send attempt.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("处理WebSocket消息时出错: " + e.getMessage());
         }
     }
 

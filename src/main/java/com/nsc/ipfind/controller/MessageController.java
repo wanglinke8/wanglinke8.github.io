@@ -104,31 +104,24 @@ public class MessageController {
             //        OR (sender_id = targetUserId AND receiver_id = currentUserId)
             // 按时间戳升序排列
             List<Message> chatHistory = messageService.lambdaQuery()
-                    // 第一组条件: (sender_id = currentUserId AND receiver_id = targetUserId)
                     .nested(w1 -> w1.eq(Message::getSenderId, currentUserId)
                             .eq(Message::getReceiverId, targetUserId))
-                    // OR
                     .or()
-                    // 第二组条件: (sender_id = targetUserId AND receiver_id = currentUserId)
                     .nested(w2 -> w2.eq(Message::getSenderId, targetUserId)
                             .eq(Message::getReceiverId, currentUserId))
                     .orderByAsc(Message::getTimestamp)
                     .list();
 
-
             System.out.println("DEBUG: Queried chat history size: " + (chatHistory != null ? chatHistory.size() : "null"));
-            if (chatHistory != null && !chatHistory.isEmpty()) {
-                System.out.println("DEBUG: First message content: " + chatHistory.get(0).getContent());
-            }
-            // 4. 构造成功响应
+
             response.put("code", 200);
             response.put("message", "获取成功");
-            response.put("data", chatHistory);
+            response.put("data", chatHistory); // 确保这个包含了 messageType 字段
 
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            e.printStackTrace(); // 实际项目中应使用日志框架记录
+            e.printStackTrace();
             response.put("code", 500);
             response.put("message", "服务器内部错误: " + e.getMessage());
             return ResponseEntity.status(500).body(response);
@@ -138,7 +131,7 @@ public class MessageController {
 
     @PostMapping("/send")
     public ResponseEntity<Map<String, Object>> sendMessage(
-            @Valid @RequestBody SendMessageRequest request, // 使用 DTO 接收请求体，并进行验证
+            @Valid @RequestBody SendMessageRequest request,
             HttpServletRequest httpRequest) {
 
         Map<String, Object> response = new HashMap<>();
@@ -159,7 +152,7 @@ public class MessageController {
                 return ResponseEntity.status(401).body(response);
             }
 
-            String currentZhanghao = jwtUtil.getZhanghaoFromToken(token); // 使用修改后的方法名
+            String currentZhanghao = jwtUtil.getZhanghaoFromToken(token);
             if (currentZhanghao == null || currentZhanghao.isEmpty()) {
                 response.put("code", 401);
                 response.put("message", "令牌中未包含有效的用户信息");
@@ -177,21 +170,29 @@ public class MessageController {
             // 2. 获取请求数据
             Integer receiverId = request.getReceiverId();
             String content = request.getContent();
+            String messageType = request.getMessageType() != null ? request.getMessageType() : "TEXT";
 
-            // 3. 基本验证 (DTO 的 @Valid 会处理部分内容)
+            // 3. 基本验证
             if (receiverId == null || receiverId.equals(senderId)) {
                 response.put("code", 400);
                 response.put("message", "无效的接收者ID");
                 return ResponseEntity.status(400).body(response);
             }
+
             if (content == null || content.trim().isEmpty()) {
-                // 这个检查其实 DTO 的 @NotBlank 已经做了，但保留作为示例
                 response.put("code", 400);
                 response.put("message", "消息内容不能为空");
                 return ResponseEntity.status(400).body(response);
             }
 
-            // 4. (可选) 检查接收者是否存在
+            // 4. 验证消息类型
+            if (!"TEXT".equals(messageType) && !"IMAGE".equals(messageType)) {
+                response.put("code", 400);
+                response.put("message", "无效的消息类型");
+                return ResponseEntity.status(400).body(response);
+            }
+
+            // 5. (可选) 检查接收者是否存在
             User receiverUser = userService.getById(receiverId);
             if (receiverUser == null) {
                 response.put("code", 404);
@@ -199,11 +200,12 @@ public class MessageController {
                 return ResponseEntity.status(404).body(response);
             }
 
-            // 5. 创建消息对象并保存
+            // 6. 创建消息对象并保存
             Message message = new Message();
             message.setSenderId(senderId);
             message.setReceiverId(receiverId);
-            message.setContent(content.trim()); // 保存前去除首尾空格
+            message.setContent(content.trim());
+            message.setMessageType(messageType); // 设置消息类型
             // timestamp 会由数据库自动设置为 CURRENT_TIMESTAMP
 
             boolean isSaved = messageService.save(message);
@@ -211,19 +213,16 @@ public class MessageController {
             if (isSaved) {
                 response.put("code", 200);
                 response.put("message", "消息发送成功");
-                // 可以选择返回刚保存的消息对象，供前端立即显示
                 response.put("data", message);
                 return ResponseEntity.ok(response);
             } else {
-                // 保存失败比较少见，但理论上可能发生（如数据库连接问题）
                 response.put("code", 500);
                 response.put("message", "消息保存失败");
                 return ResponseEntity.status(500).body(response);
             }
 
-
         } catch (Exception e) {
-            e.printStackTrace(); // 实际项目中应使用日志框架记录
+            e.printStackTrace();
             response.put("code", 500);
             response.put("message", "服务器内部错误: " + e.getMessage());
             return ResponseEntity.status(500).body(response);

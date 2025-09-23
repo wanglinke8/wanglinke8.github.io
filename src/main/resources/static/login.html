@@ -258,6 +258,19 @@
             color: #aaa;
             font-family: 'Courier New', monospace;
         }
+        /* 链接样式统一 */
+        .action-link {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            display: block;
+            margin-top: 15px;
+        }
+        .action-link:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -305,8 +318,12 @@
         <p id="login-error" class="error-message"></p>
     </form>
     <p style="margin-top: 20px;">
-        还没有账号？<a href="zhuce.html" style="color: #007bff; text-decoration: none; font-weight: bold;">立即注册</a>
+        还没有账号？<a href="zhuce.html" class="action-link">立即注册</a>
     </p>
+    <!-- 新增的找回密码链接 -->
+    <a href="mima.html" class="action-link">忘记密码？</a>
+    <a href="javascript:void(0)" id="clear-cache-btn" class="action-link">清除缓存并刷新</a>
+
     <p id="user-ip"></p>
 </div>
 <script>
@@ -464,6 +481,45 @@
             console.error(':', err);
             ipElement.textContent = '';
             ipElement.style.color = '#ff6b6b';
+        }
+    });
+
+    // 清理缓存按钮事件
+    document.getElementById('clear-cache-btn').addEventListener('click', function () {
+        if (confirm('确定要清除缓存数据吗？')) {
+            const clearBtn = document.getElementById('clear-cache-btn');
+            clearBtn.textContent = '正在清理...';
+            clearBtn.style.pointerEvents = 'none'; // 禁止重复点击
+
+            try {
+                // 清除 localStorage
+                localStorage.clear();
+                // 清除 sessionStorage
+                sessionStorage.clear();
+
+                // 清除 Service Worker 缓存
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                        for(let registration of registrations) {
+                            registration.unregister();
+                        }
+                    });
+                }
+
+                // 清除 cookies（可选）
+                document.cookie.split(";").forEach(function(c) {
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+                });
+
+                // 延迟刷新确保清理完成
+                setTimeout(() => {
+                    window.location.reload(true); // 强制从服务器加载
+                }, 500);
+            } catch (e) {
+                alert("清理缓存时出错：" + e.message);
+                clearBtn.textContent = '清除缓存并刷新';
+                clearBtn.style.pointerEvents = 'auto';
+            }
         }
     });
 </script>

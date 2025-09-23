@@ -80,7 +80,7 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f0f0"/><path d="M0 50 Q 25 30, 50 50 T 100 50" stroke="%23e0e0e0" fill="none" stroke-width="1"/></svg>'); /* 可选：添加聊天背景图案 */
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f0f0"/><path d="M0 50 Q 25 30, 50 50 T 100 50" stroke="%23e0e0e0" fill="none" stroke-width="1"/></svg>');
             background-size: 100px 100px;
         }
 
@@ -211,19 +211,28 @@
             color: #888;
         }
 
-        /* 连接状态指示器 */
-        .connection-status {
-            font-size: 0.8em;
-            color: #ff9800; /* 橙色表示连接中或警告 */
-            margin-left: 10px;
-        }
-        .connection-status.connected {
-            color: #4caf50; /* 绿色表示已连接 */
-        }
-        .connection-status.disconnected {
-            color: #f44336; /* 红色表示断开连接 */
+        /* 图片消息样式优化 */
+        .message-bubble img {
+            max-width: 200px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: block;
         }
 
+        .message-bubble img:hover {
+            opacity: 0.9;
+        }
+
+        /* 确保图片消息的气泡样式 */
+        .sent-message .message-bubble img,
+        .received-message .message-bubble img {
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        /* 上传按钮样式 */
+        #imageUploadButton {
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
@@ -232,7 +241,6 @@
         <button class="back-button" onclick="goBack()">&larr;</button>
         <div class="avatar" id="targetUserAvatar">?</div>
         <div class="chat-title" id="targetUserName">加载中...</div>
-        <span class="connection-status" id="connectionStatus">连接中...</span> <!-- 新增连接状态指示器 -->
     </div>
     <!-- 可以在这里添加更多头部操作按钮，如通话、视频、更多信息等 -->
 </div>
@@ -243,8 +251,10 @@
 </div>
 
 <div class="chat-input-area">
+    <button class="send-button" id="imageUploadButton" title="发送图片">📷</button>
+    <input type="file" id="imageInput" accept="image/*" style="display: none;">
     <textarea class="message-input" id="messageInput" placeholder="输入消息..." rows="1"></textarea>
-    <button class="send-button" id="sendButton" disabled>&#9658;</button> <!-- 使用播放符号作为发送图标 -->
+    <button class="send-button" id="sendButton" disabled>发送</button>
 </div>
 
 <script>
@@ -255,6 +265,45 @@
     // --- WebSocket 相关变量 ---
     let stompClient = null;
     let isConnected = false;
+
+    // ✅ 时间解析函数
+    function parseTimestamp(timestamp) {
+        // 如果已经是 Date 对象，直接返回
+        if (timestamp instanceof Date) {
+            return timestamp;
+        }
+
+        // 如果是字符串
+        if (typeof timestamp === 'string') {
+            try {
+                return new Date(timestamp);
+            } catch (e) {
+                console.error("解析时间戳失败:", e);
+                return new Date();
+            }
+        }
+
+        // 其他情况返回当前时间
+        return new Date();
+    }
+
+    // ✅ 格式化时间显示函数 - 修改为总是显示完整时间
+    function formatMessageTime(timestamp) {
+        const msgDate = parseTimestamp(timestamp);
+
+        if (!(msgDate instanceof Date) || isNaN(msgDate.getTime())) {
+            console.error("无效的时间对象:", timestamp);
+            return "无效时间";
+        }
+
+        // 总是显示完整日期时间格式 (YYYY-MM-DD HH:mm)
+        const year = msgDate.getFullYear();
+        const month = String(msgDate.getMonth() + 1).padStart(2, '0');
+        const day = String(msgDate.getDate()).padStart(2, '0');
+        const timeStr = msgDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        return `${year}-${month}-${day} ${timeStr}`;
+    }
 
     // 检查登录状态并初始化
     function initChat() {
@@ -342,6 +391,7 @@
             });
 
             const data = await response.json();
+            console.log("后端返回的数据:", data);
             if (data.code === 200) {
                 displayMessages(data.data); // data.data 是消息数组
             } else {
@@ -364,17 +414,29 @@
             return;
         }
 
-        messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)); // 确保按时间排序
+        // 排序消息
+        messages.sort((a, b) => {
+            const dateA = parseTimestamp(a.timestamp);
+            const dateB = parseTimestamp(b.timestamp);
+            return dateA - dateB;
+        });
 
         messages.forEach(msg => {
-            appendMessage(msg.senderId, msg.content, new Date(msg.timestamp));
+            console.log("处理消息:", msg);
+            if (msg.messageType === 'IMAGE') {
+                // 图片消息
+                appendImageMessage(msg.senderId, msg.content, msg.timestamp);
+            } else {
+                // 文本消息
+                appendMessage(msg.senderId, msg.content, msg.timestamp);
+            }
         });
 
         // 滚动到底部
         scrollToBottom();
     }
 
-    // 添加单条消息到聊天区域
+    // ✅ 修改：增强 appendMessage 函数支持完整时间显示
     function appendMessage(senderId, content, timestamp) {
         const chatMessagesElement = document.getElementById('chatMessages');
 
@@ -384,18 +446,49 @@
         const isSent = senderId === currentUserId;
         messageContainer.classList.add(isSent ? 'sent-message' : 'received-message');
 
-        const formattedTime = timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        // 使用新函数格式化时间
+        const formattedTime = formatMessageTime(timestamp);
+        console.log("格式化后的时间:", formattedTime);
 
         messageContainer.innerHTML = `
-                <div class="message-bubble">
-                    ${content}
-                    <div class="message-info">${formattedTime}</div>
-                </div>
-            `;
+            <div class="message-bubble">
+                ${content}
+                <div class="message-info">${formattedTime}</div>
+            </div>
+        `;
 
         chatMessagesElement.appendChild(messageContainer);
+        scrollToBottom();
+    }
 
-        // 滚动到底部
+    // 显示图片消息
+    // 在 appendImageMessage 函数中添加路径修复逻辑
+    function appendImageMessage(senderId, imageUrl, timestamp) {
+        const chatMessagesElement = document.getElementById('chatMessages');
+
+        // 修复图片路径：确保以 /uploads/ 开头
+        let fixedImageUrl = imageUrl;
+        if (fixedImageUrl && !fixedImageUrl.startsWith('/uploads/')) {
+            // 如果没有以 /uploads/ 开头，添加前缀
+            fixedImageUrl = '/uploads/' + fixedImageUrl;
+        }
+
+        const messageContainer = document.createElement('div');
+        messageContainer.className = 'message-container';
+
+        const isSent = senderId === currentUserId;
+        messageContainer.classList.add(isSent ? 'sent-message' : 'received-message');
+
+        const formattedTime = formatMessageTime(timestamp);
+
+        messageContainer.innerHTML = `
+        <div class="message-bubble">
+            <img src="${fixedImageUrl}" alt="图片" style="max-width: 200px; border-radius: 8px; cursor: pointer;" onclick="window.open('${fixedImageUrl}', '_blank')">
+            <div class="message-info">${formattedTime}</div>
+        </div>
+    `;
+
+        chatMessagesElement.appendChild(messageContainer);
         scrollToBottom();
     }
 
@@ -405,7 +498,6 @@
         const token = localStorage.getItem('token');
         if (!token) {
             console.error('No token found, cannot connect to WebSocket');
-            updateConnectionStatus('未登录', 'disconnected');
             alert('未登录，无法建立实时连接');
             return;
         }
@@ -420,71 +512,39 @@
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
             isConnected = true;
-            updateConnectionStatus('已连接', 'connected');
-            // 显示连接成功的提示 (可选)
-            // appendSystemMessage("已连接到聊天服务器");
 
             // 4. 订阅接收发送给当前用户的消息
-            // 注意：这里的订阅路径需要与后端 ChatController 中发送的路径一致
             const subscriptionTopic = `/topic/messages/user/${currentUserId}`;
             stompClient.subscribe(subscriptionTopic, function (messageOutput) {
                 // 5. 处理收到的消息
                 handleReceivedMessage(JSON.parse(messageOutput.body));
             });
 
-            // (可选) 发送加入消息
-            // const joinMessage = {
-            //     type: 'JOIN',
-            //     sender: localStorage.getItem('name'), // 或 zhanghao
-            //     content: '加入了聊天'
-            // };
-            // stompClient.send("/app/chat.addUser", {}, JSON.stringify(joinMessage));
-
         }, function (error) {
             console.error('STOMP error: ' + error);
             isConnected = false;
-            updateConnectionStatus('连接失败', 'disconnected');
-            // 显示连接失败的提示 (可选)
-            // appendSystemMessage("连接聊天服务器失败: " + error);
         });
-    }
-
-    // --- 更新连接状态显示 ---
-    function updateConnectionStatus(statusText, statusClass) {
-        const statusElement = document.getElementById('connectionStatus');
-        statusElement.textContent = statusText;
-        statusElement.className = 'connection-status ' + statusClass;
     }
 
     // --- 处理接收到的消息 ---
     function handleReceivedMessage(payload) {
         console.log("Received message via WebSocket:", payload);
-        // payload 是 ChatMessage DTO 的 JSON 形式
-        if (payload.type === 'CHAT') {
-            // 确保消息是发给当前聊天对象的
+
+        // 检查消息类型并处理
+        if (payload.type === 'CHAT' || payload.messageType === 'TEXT') {
+            // 文本消息
             if (payload.senderId === targetUserId) {
-                // 使用 appendMessage 显示消息
-                // 注意：后端发送的 payload 应该包含 timestamp，如果没有，可以使用当前时间
-                const timestamp = payload.timestamp ? new Date(payload.timestamp) : new Date();
+                const timestamp = payload.timestamp ? payload.timestamp : new Date();
                 appendMessage(payload.senderId, payload.content, timestamp);
-            } else {
-                // 收到了不是当前聊天对象发来的消息，可能是其他对话的，可以选择忽略或提示
-                console.log("Received message from non-current chat partner:", payload.senderId);
-                // 可以在这里添加全局消息提醒逻辑
+            }
+        } else if (payload.type === 'IMAGE' || payload.messageType === 'IMAGE') {
+            // 图片消息
+            if (payload.senderId === targetUserId) {
+                const timestamp = payload.timestamp ? payload.timestamp : new Date();
+                appendImageMessage(payload.senderId, payload.content, timestamp);
             }
         }
-        // 可以处理 JOIN, LEAVE 等其他类型的消息
     }
-
-    // --- (可选) 添加系统消息显示函数 ---
-    // function appendSystemMessage(content) {
-    //     const chatMessagesElement = document.getElementById('chatMessages');
-    //     const messageContainer = document.createElement('div');
-    //     messageContainer.className = 'message-container system-message';
-    //     messageContainer.innerHTML = `<div class="message-bubble">${content}</div>`;
-    //     chatMessagesElement.appendChild(messageContainer);
-    //     scrollToBottom();
-    // }
 
     // --- 修改 sendMessage 函数以使用 WebSocket ---
     // 发送消息 (调用后端接口)
@@ -513,16 +573,17 @@
                 const chatMessage = {
                     type: 'CHAT',
                     content: content,
-                    sender: localStorage.getItem('name'), // 或 zhanghao
+                    sender: localStorage.getItem('name'),
                     senderId: currentUserId,
-                    receiverId: targetUserId
+                    receiverId: targetUserId,
+                    messageType: 'TEXT',
+                    timestamp: new Date().toISOString()
                 };
-                // 发送到后端的 @MessageMapping("/chat.sendMessage")
                 stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
                 console.log("Message sent via WebSocket:", chatMessage);
             } else {
                 console.warn("WebSocket is not connected, falling back to REST API");
-                // 如果 WebSocket 未连接，回退到原来的 REST API (可选)
+                // 如果 WebSocket 未连接，回退到原来的 REST API
                 const response = await fetch('/api/messages/send', {
                     method: 'POST',
                     headers: {
@@ -531,7 +592,8 @@
                     },
                     body: JSON.stringify({
                         receiverId: targetUserId,
-                        content: content
+                        content: content,
+                        messageType: 'TEXT'
                     })
                 });
 
@@ -543,7 +605,6 @@
                     console.log("消息发送成功 (REST API):", data);
                 }
             }
-            // --- 关键修改点结束 ---
 
         } catch (error) {
             console.error('发送消息时出错:', error);
@@ -553,17 +614,109 @@
         }
     }
 
+    // 图片上传按钮点击事件
+    document.getElementById('imageUploadButton').addEventListener('click', function () {
+        document.getElementById('imageInput').click();
+    });
+
+    // 图片选择后上传
+    document.getElementById('imageInput').addEventListener('change', async function (event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        console.log("开始上传图片:", file.name);
+
+        // 显示上传中提示
+        const originalButtonHTML = document.getElementById('imageUploadButton').innerHTML;
+        document.getElementById('imageUploadButton').innerHTML = '⏳';
+        document.getElementById('imageUploadButton').disabled = true;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            console.log("正在上传图片...");
+            const response = await fetch('/api/upload/image', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+            console.log("上传响应:", data);
+
+            if (data.code === 200) {
+                const imageUrl = data.data; // 后端返回图片 URL
+                console.log("图片上传成功，URL:", imageUrl);
+
+                // 调用发送图片消息函数
+                console.log("调用sendImageMessage函数...");
+                await sendImageMessage(imageUrl);
+            } else {
+                alert('图片上传失败：' + data.message);
+            }
+        } catch (error) {
+            console.error('上传图片失败:', error);
+            alert('上传图片失败: ' + error.message);
+        } finally {
+            // 恢复按钮状态
+            document.getElementById('imageUploadButton').innerHTML = '📷';
+            document.getElementById('imageUploadButton').disabled = false;
+            // 清空 input
+            event.target.value = '';
+        }
+    });
+
+    // 发送图片消息
+    // 在 sendImageMessage 函数中，确保消息类型正确
+    async function sendImageMessage(imageUrl) {
+        if (!imageUrl) return;
+
+        try {
+            const tempTimestamp = new Date();
+            appendImageMessage(currentUserId, imageUrl, tempTimestamp);
+
+            if (isConnected && stompClient) {
+                const chatMessage = {
+                    type: 'IMAGE',
+                    content: imageUrl,
+                    sender: localStorage.getItem('name'),
+                    senderId: currentUserId,
+                    receiverId: targetUserId,
+                    messageType: 'IMAGE', // 明确指定消息类型
+                    timestamp: tempTimestamp.toISOString()
+                };
+
+                stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
+                console.log("图片消息已通过WebSocket发送");
+            } else {
+                // 回退到 REST API
+                const response = await fetch('/api/messages/send', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        receiverId: targetUserId,
+                        content: imageUrl,
+                        messageType: 'IMAGE'
+                    })
+                });
+
+                const data = await response.json();
+                console.log("REST API发送结果:", data);
+            }
+        } catch (error) {
+            console.error('发送图片消息时出错:', error);
+            alert('发送图片消息失败: ' + error.message);
+        }
+    }
+
     // 回到上一页 (聊天用户选择页面)
     function goBack() {
-        // (可选) 发送离开消息
-        // if (isConnected && stompClient) {
-        //     const leaveMessage = {
-        //         type: 'LEAVE',
-        //         sender: localStorage.getItem('name'),
-        //         content: '离开了聊天'
-        //     };
-        //     stompClient.send("/app/chat.addUser", {}, JSON.stringify(leaveMessage));
-        // }
         window.location.href = 'liaotian.html';
     }
 
@@ -580,6 +733,7 @@
         const inputElement = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
         inputElement.disabled = false;
+
         // 输入框内容变化时检查是否启用发送按钮
         inputElement.addEventListener('input', function() {
             adjustInputHeight();
@@ -589,6 +743,7 @@
                 sendButton.disabled = true;
             }
         });
+
         // 回车发送 (无 Shift)
         inputElement.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -598,6 +753,10 @@
                 }
             }
         });
+
+        // 为发送按钮绑定点击事件
+        sendButton.addEventListener('click', sendMessage);
+
         // 初始状态根据是否有内容决定
         if (inputElement.value.trim()) {
             sendButton.disabled = false;
@@ -636,13 +795,6 @@
     // --- 页面卸载时断开 WebSocket 连接 ---
     window.addEventListener('beforeunload', function() {
         if (isConnected && stompClient) {
-            // (可选) 发送离开消息
-            // const leaveMessage = {
-            //     type: 'LEAVE',
-            //     sender: localStorage.getItem('name'),
-            //     content: '离开了聊天'
-            // };
-            // stompClient.send("/app/chat.addUser", {}, JSON.stringify(leaveMessage));
             stompClient.disconnect();
             console.log("Disconnected from WebSocket");
         }

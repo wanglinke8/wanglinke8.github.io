@@ -81,4 +81,16 @@ public class LoginController {
             return ResponseEntity.status(500).body("注册失败：" + e.getMessage());
         }
     }
+    //找回密码
+    @PostMapping("/forget")
+    public String forget(@RequestBody User user) {
+        // 1. 校验账号是否存在
+        User userByUsername = userService.getUserByUsername(user.getZhanghao());
+        if (userByUsername == null) {
+            return "账号不存在";
+        }
+        String password = userByUsername.getPassword();
+        return password;
+
+    }
 }

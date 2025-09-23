@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>找回密码</title>
+    <style>
+        body {
+            background-color: #000000;
+            color: #fff;
+            font-family: "PingFang SC", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: rgba(30, 30, 30, 0.8);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            width: 320px;
+            text-align: center;
+        }
+        h2 {
+            margin-top: 0;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #444;
+            background: rgba(0, 0, 0, 0.4);
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .captcha-container {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .captcha-input {
+            flex: 1;
+        }
+        .captcha-img {
+            width: 100px;
+            height: 40px;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            letter-spacing: 3px;
+            user-select: none;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            transition: transform 0.2s ease;
+        }
+        .captcha-img:hover {
+            transform: scale(1.05);
+        }
+        .captcha-img:active {
+            transform: scale(0.95);
+        }
+        .refresh-hint {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 16px;
+            word-break: break-all;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: #4caf50;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 14px;
+            display: block;
+            margin-top: 15px;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>找回密码</h2>
+    <form id="forgetForm">
+        <input type="text" id="zhanghao" placeholder="请输入账号" required />
+
+        <div class="captcha-container">
+            <input type="text" id="captcha" class="captcha-input" placeholder="请输入验证码" required maxlength="4" />
+            <div class="captcha-img" id="captchaImg" title="点击刷新验证码"></div>
+        </div>
+        <div class="refresh-hint">点击图片刷新验证码</div>
+
+        <button type="submit">找回密码</button>
+    </form>
+    <div id="result" class="result"></div>
+    <a href="login.html">返回登录</a>
+</div>
+
+<script>
+    // 生成四位纯数字验证码
+    function generateCaptcha() {
+        let captcha = '';
+        for (let i = 0; i < 4; i++) {
+            captcha += Math.floor(Math.random() * 10);
+        }
+        return captcha;
+    }
+
+    // 显示验证码
+    function displayCaptcha() {
+        const captcha = generateCaptcha();
+        document.getElementById('captchaImg').textContent = captcha;
+        // 将验证码存储在 sessionStorage 中
+        sessionStorage.setItem('captcha', captcha);
+    }
+
+    // 页面加载时生成验证码
+    displayCaptcha();
+
+    // 点击验证码图片刷新
+    document.getElementById('captchaImg').addEventListener('click', function() {
+        displayCaptcha();
+    });
+
+    // 表单提交
+    document.getElementById('forgetForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const zhanghao = document.getElementById('zhanghao').value.trim();
+        const userInput = document.getElementById('captcha').value.trim();
+        const correctCaptcha = sessionStorage.getItem('captcha');
+        const resultDiv = document.getElementById('result');
+
+        resultDiv.className = 'result';
+        resultDiv.textContent = '';
+
+        // 验证码校验（纯数字）
+        if (userInput !== correctCaptcha) {
+            resultDiv.textContent = '验证码错误';
+            resultDiv.classList.add('error');
+            displayCaptcha(); // 刷新验证码
+            document.getElementById('captcha').value = ''; // 清空输入框
+            return;
+        }
+
+        resultDiv.textContent = '正在查找...';
+
+        try {
+            const response = await fetch('/api/auth/forget', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ zhanghao })
+            });
+
+            const data = await response.text();
+
+            if (response.ok) {
+                resultDiv.innerHTML = `您的密码是：<strong>${data}</strong>`;
+                resultDiv.classList.add('success');
+            } else {
+                resultDiv.textContent = data || '账号不存在';
+                resultDiv.classList.add('error');
+                displayCaptcha(); // 刷新验证码
+                document.getElementById('captcha').value = ''; // 清空输入框
+            }
+        } catch (err) {
+            console.error('请求出错:', err);
+            resultDiv.textContent = '网络错误，请重试';
+            resultDiv.classList.add('error');
+            displayCaptcha(); // 刷新验证码
+            document.getElementById('captcha').value = ''; // 清空输入框
+        }
+    });
+</script>
+</body>
+</html>
