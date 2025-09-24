@@ -1,6 +1,7 @@
 package com.nsc.ipfind.controller;
 
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.nsc.ipfind.dto.SendMessageRequest;
 import com.nsc.ipfind.pojos.Message;
 import com.nsc.ipfind.pojos.User;
@@ -40,6 +41,8 @@ public class MessageController {
     @GetMapping("/history")
     public ResponseEntity<Map<String, Object>> getChatHistory(
             @RequestParam("targetUserId") Integer targetUserId,
+            @RequestParam(value = "page", defaultValue = "1") Integer page,
+            @RequestParam(value = "size", defaultValue = "10") Integer size,
             HttpServletRequest request) {
 
         Map<String, Object> response = new HashMap<>();
@@ -76,47 +79,52 @@ public class MessageController {
 
             Integer currentUserId = currentUser.getId();
 
-//            Integer currentUserId = currentUser.getId();
-// --- 添加调试信息 ---
-            System.out.println("DEBUG: Current User ID from Token/Zhanghao (" + currentZhanghao + "): " + currentUserId);
-            System.out.println("DEBUG: Target User ID from Request Param: " + targetUserId);
-
             // 2. 验证目标用户ID是否有效
             if (targetUserId == null || targetUserId.equals(currentUserId)) {
                 response.put("code", 400);
                 response.put("message", "无效的目标用户ID");
                 return ResponseEntity.status(400).body(response);
             }
-            // 可选：检查 targetUserId 对应的用户是否存在
-            User targetUser = userService.getById(targetUserId);
 
-            if (targetUser == null) {
-                // 如果严格要求，可以返回错误；也可以允许，因为可能是历史消息
-                // 这里选择允许，因为消息可能存在，即使对方账号被删除（根据外键策略）
-                // response.put("code", 404);
-                // response.put("message", "目标用户不存在");
-                // return ResponseEntity.status(404).body(response);
-            }
-
-
-            // 3. 查询聊天历史记录
-            // 查询条件：(sender_id = currentUserId AND receiver_id = targetUserId)
-            //        OR (sender_id = targetUserId AND receiver_id = currentUserId)
-            // 按时间戳升序排列
+            // 3. 查询聊天历史记录 - 分页查询
+            // 按时间戳降序排列，然后取指定页的数据
             List<Message> chatHistory = messageService.lambdaQuery()
+                    // 第一组条件: (sender_id = currentUserId AND receiver_id = targetUserId)
+                    .nested(w1 -> w1.eq(Message::getSenderId, currentUserId)
+                            .eq(Message::getReceiverId, targetUserId))
+                    // OR
+                    .or()
+                    // 第二组条件: (sender_id = targetUserId AND receiver_id = currentUserId)
+                    .nested(w2 -> w2.eq(Message::getSenderId, targetUserId)
+                            .eq(Message::getReceiverId, currentUserId))
+                    .orderByDesc(Message::getTimestamp) // 先按时间降序
+                    .page(new Page<>(page, size))
+                    .getRecords();
+
+            // 重新按时间升序排列（因为前端需要按时间顺序显示）
+            chatHistory.sort((a, b) -> {
+                return a.getTimestamp().compareTo(b.getTimestamp());
+            });
+
+            // 4. 检查是否还有更多数据
+            Long total = messageService.lambdaQuery()
                     .nested(w1 -> w1.eq(Message::getSenderId, currentUserId)
                             .eq(Message::getReceiverId, targetUserId))
                     .or()
                     .nested(w2 -> w2.eq(Message::getSenderId, targetUserId)
                             .eq(Message::getReceiverId, currentUserId))
-                    .orderByAsc(Message::getTimestamp)
-                    .list();
+                    .count();
 
-            System.out.println("DEBUG: Queried chat history size: " + (chatHistory != null ? chatHistory.size() : "null"));
+            boolean hasMore = total > (page * size);
 
+            // 5. 构造成功响应
             response.put("code", 200);
             response.put("message", "获取成功");
-            response.put("data", chatHistory); // 确保这个包含了 messageType 字段
+            response.put("data", chatHistory);
+            response.put("hasMore", hasMore);
+            response.put("currentPage", page);
+            response.put("pageSize", size);
+            response.put("total", total);
 
             return ResponseEntity.ok(response);
 

@@ -13,7 +13,6 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f0f0;
@@ -21,7 +20,6 @@
             display: flex;
             flex-direction: column;
         }
-
         /* 头部 */
         .chat-header {
             background-color: #075e54; /* WhatsApp 绿色 */
@@ -33,13 +31,11 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
             flex-shrink: 0; /* 防止头部被压缩 */
         }
-
         .header-left {
             display: flex;
             align-items: center;
             gap: 10px;
         }
-
         .back-button {
             background: none;
             border: none;
@@ -50,11 +46,9 @@
             border-radius: 50%;
             transition: background-color 0.2s;
         }
-
         .back-button:hover {
             background-color: rgba(255, 255, 255, 0.2);
         }
-
         .avatar {
             width: 40px;
             height: 40px;
@@ -67,11 +61,39 @@
             color: white;
             flex-shrink: 0;
         }
-
+        /* --- 修改：包装用户名称和视频按钮的容器 --- */
+        .chat-title-container {
+            display: flex;
+            flex-direction: row; /* 水平排列 */
+            align-items: center; /* 垂直居中 */
+            gap: 10px; /* 名称和按钮之间的间距 */
+            flex-grow: 1; /* 占据剩余空间 */
+        }
         .chat-title {
             font-size: 1.1em;
             font-weight: 500;
+            flex-grow: 1; /* 标题占据容器内除按钮外的剩余空间 */
         }
+        #videoCallButton {
+            background-color: #25d366; /* WhatsApp 按钮绿色 */
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            flex-shrink: 0;
+            font-size: 16px; /* 调整按钮内符号大小 */
+            padding: 0; /* 移除默认内边距，使符号居中 */
+        }
+        #videoCallButton:hover {
+            background-color: #128c7e;
+        }
+        /* --- 修改结束 --- */
 
         /* 聊天记录区域 */
         .chat-messages {
@@ -83,7 +105,6 @@
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f0f0"/><path d="M0 50 Q 25 30, 50 50 T 100 50" stroke="%23e0e0e0" fill="none" stroke-width="1"/></svg>');
             background-size: 100px 100px;
         }
-
         /* 消息气泡容器 */
         .message-container {
             display: flex;
@@ -92,34 +113,28 @@
             position: relative;
             animation: fadeIn 0.3s ease-out;
         }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         /* 接收方消息 (左侧) */
         .received-message {
             align-self: flex-start;
         }
-
         .received-message .message-bubble {
             background-color: white;
             color: #333;
             border-top-left-radius: 5px; /* 左上角不圆角 */
         }
-
         /* 发送方消息 (右侧) */
         .sent-message {
             align-self: flex-end;
         }
-
         .sent-message .message-bubble {
             background-color: #dcf8c6; /* WhatsApp 发送方绿色 */
             color: #333;
             border-top-right-radius: 5px; /* 右上角不圆角 */
         }
-
         /* 消息气泡 */
         .message-bubble {
             padding: 10px 15px;
@@ -128,14 +143,12 @@
             word-wrap: break-word;
             word-break: break-all;
         }
-
         .message-info {
             font-size: 0.75em;
             color: #999;
             text-align: right;
             margin-top: 5px;
         }
-
         /* 输入区域 */
         .chat-input-area {
             background-color: #f0f0f0;
@@ -146,7 +159,6 @@
             flex-shrink: 0; /* 防止输入区域被压缩 */
             border-top: 1px solid #ddd;
         }
-
         .message-input {
             flex-grow: 1;
             padding: 10px 15px;
@@ -159,7 +171,6 @@
             max-height: 100px;
             overflow-y: auto;
         }
-
         .send-button {
             background-color: #075e54;
             color: white;
@@ -174,27 +185,22 @@
             transition: background-color 0.2s;
             flex-shrink: 0;
         }
-
         .send-button:hover {
             background-color: #128c7e;
         }
-
         .send-button:disabled {
             background-color: #cccccc;
             cursor: not-allowed;
         }
-
         /* 加载和错误提示 */
         .loading, .error-message {
             text-align: center;
             padding: 20px;
             color: #666;
         }
-
         .error-message {
             color: red;
         }
-
         /* 系统消息 (例如 "对方正在输入...") - 可选 */
         .system-message {
             align-self: center;
@@ -210,7 +216,6 @@
             padding: 2px 10px;
             color: #888;
         }
-
         /* 图片消息样式优化 */
         .message-bubble img {
             max-width: 200px;
@@ -218,21 +223,134 @@
             cursor: pointer;
             display: block;
         }
-
         .message-bubble img:hover {
             opacity: 0.9;
         }
-
         /* 确保图片消息的气泡样式 */
         .sent-message .message-bubble img,
         .received-message .message-bubble img {
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
-
         /* 上传按钮样式 */
         #imageUploadButton {
             font-size: 18px;
         }
+        /* 加载更多提示 */
+        .loading-more {
+            text-align: center;
+            padding: 10px;
+            color: #666;
+        }
+        .no-more-messages {
+            text-align: center;
+            padding: 10px;
+            color: #999;
+            font-size: 0.9em;
+        }
+        /* 新增：来电模态框样式 */
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5); /* 半透明背景 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            display: none; /* 默认隐藏 */
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .modal-content button {
+            margin: 5px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #acceptCallButton { background-color: #4CAF50; color: white; }
+        #declineCallButton { background-color: #f44336; color: white; }
+        /* 新增结束 */
+
+        /* --- 新增：视频通话界面样式 --- */
+        #videoCallInterface {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 2000;
+            flex-direction: column;
+        }
+        #remoteVideoContainer {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #333;
+        }
+        #remoteVideo {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; /* 保持宽高比 */
+        }
+        #localVideoContainer {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 150px;
+            height: 112px; /* 4:3 aspect ratio */
+            border: 2px solid white;
+            border-radius: 5px;
+            overflow: hidden;
+            background-color: #222;
+        }
+        #localVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 填满容器 */
+        }
+        #callControls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+        }
+        .call-control-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background-color: #f44336;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .call-control-button:hover {
+            background-color: #d32f2f;
+        }
+        #callStatus {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 18px;
+            background-color: rgba(0,0,0,0.5);
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+        /* --- 新增结束 --- */
     </style>
 </head>
 <body>
@@ -240,22 +358,46 @@
     <div class="header-left">
         <button class="back-button" onclick="goBack()">&larr;</button>
         <div class="avatar" id="targetUserAvatar">?</div>
-        <div class="chat-title" id="targetUserName">加载中...</div>
+        <!-- 修改：包装用户名称和视频通话按钮 -->
+        <div class="chat-title-container">
+            <div class="chat-title" id="targetUserName">加载中...</div>
+            <button class="send-button" id="videoCallButton" title="视频通话">📞</button>
+        </div>
     </div>
-    <!-- 可以在这里添加更多头部操作按钮，如通话、视频、更多信息等 -->
 </div>
-
 <div class="chat-messages" id="chatMessages">
-    <div class="loading">正在加载聊天记录...</div>
+    <div class="loading" id="loadingIndicator">正在加载聊天记录...</div>
+    <div class="loading-more" id="loadingMore" style="display: none;">加载中...</div>
     <!-- 聊天消息将在这里动态添加 -->
 </div>
-
 <div class="chat-input-area">
-    <button class="send-button" id="imageUploadButton" title="发送图片">📷</button>
+    <button class="send-button" id="imageUploadButton" title="发送图片">图</button>
     <input type="file" id="imageInput" accept="image/*" style="display: none;">
     <textarea class="message-input" id="messageInput" placeholder="输入消息..." rows="1"></textarea>
     <button class="send-button" id="sendButton" disabled>发送</button>
 </div>
+<!-- 新增：来电模态框 -->
+<div id="incomingCallModal" class="modal">
+    <div class="modal-content">
+        <p>用户 <span id="callerName"></span> 正在邀请您进行视频通话...</p>
+        <button id="acceptCallButton">接受</button>
+        <button id="declineCallButton">拒绝</button>
+    </div>
+</div>
+<!-- 新增：视频通话界面 -->
+<div id="videoCallInterface">
+    <div id="callStatus">正在连接...</div>
+    <div id="remoteVideoContainer">
+        <video id="remoteVideo" autoplay playsinline></video>
+    </div>
+    <div id="localVideoContainer">
+        <video id="localVideo" autoplay muted playsinline></video>
+    </div>
+    <div id="callControls">
+        <button class="call-control-button" id="hangupButton" title="挂断">挂断</button>
+    </div>
+</div>
+<!-- 新增结束 -->
 
 <script>
     // 全局变量
@@ -265,6 +407,26 @@
     // --- WebSocket 相关变量 ---
     let stompClient = null;
     let isConnected = false;
+    let currentPage = 1;
+    let hasMore = true;
+    let isLoading = false;
+    let isAllLoaded = false;
+    let pageSize = 10;
+
+    // --- WebRTC 相关变量 ---
+    let localStream = null;
+    let peerConnection = null;
+    const configuration = {
+        iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' }
+            // 在生产环境中，强烈建议添加自己的 TURN 服务器
+            // { urls: 'turn:your-turn-server.com:3478', username: 'user', credential: 'pass' }
+        ]
+    };
+    let isInitiator = false; // 标记当前用户是否是呼叫发起方
+    let pendingOffer = null; // 用于存储收到的 Offer，等待用户接受
+    let currentCallerId = null; // 存储当前来电者的 ID
 
     // ✅ 时间解析函数
     function parseTimestamp(timestamp) {
@@ -272,7 +434,6 @@
         if (timestamp instanceof Date) {
             return timestamp;
         }
-
         // 如果是字符串
         if (typeof timestamp === 'string') {
             try {
@@ -282,41 +443,33 @@
                 return new Date();
             }
         }
-
         // 其他情况返回当前时间
         return new Date();
     }
-
     // ✅ 格式化时间显示函数 - 修改为总是显示完整时间
     function formatMessageTime(timestamp) {
         const msgDate = parseTimestamp(timestamp);
-
         if (!(msgDate instanceof Date) || isNaN(msgDate.getTime())) {
             console.error("无效的时间对象:", timestamp);
             return "无效时间";
         }
-
         // 总是显示完整日期时间格式 (YYYY-MM-DD HH:mm)
         const year = msgDate.getFullYear();
         const month = String(msgDate.getMonth() + 1).padStart(2, '0');
         const day = String(msgDate.getDate()).padStart(2, '0');
         const timeStr = msgDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
         return `${year}-${month}-${day} ${timeStr}`;
     }
-
     // 检查登录状态并初始化
     function initChat() {
         const token = localStorage.getItem('token');
         const name = localStorage.getItem('name');
         const idStr = localStorage.getItem('id'); // 获取字符串形式的 ID
-
         if (!token || !name || !idStr) { // 检查 id 是否存在
             alert('未登录或用户信息缺失，请先登录');
             window.location.href = 'login.html';
             return false;
         }
-
         // 尝试将 ID 转换为整数
         const parsedId = parseInt(idStr, 10);
         if (isNaN(parsedId)) {
@@ -329,20 +482,16 @@
             window.location.href = 'login.html';
             return false;
         }
-
         currentUserId = parsedId; // currentUserId 现在是数字类型
-
         // 从 URL 获取目标用户信息
         const urlParams = new URLSearchParams(window.location.search);
         const targetUserIdStr = urlParams.get('targetUserId');
         targetUserName = urlParams.get('targetUserName');
-
         if (!targetUserIdStr || !targetUserName) {
             alert('缺少聊天对象信息');
             window.location.href = 'liaotian.html'; // 或返回主页
             return false;
         }
-
         // 尝试将目标用户 ID 转换为整数
         const parsedTargetUserId = parseInt(targetUserIdStr, 10);
         if (isNaN(parsedTargetUserId)) {
@@ -351,168 +500,199 @@
             window.location.href = 'liaotian.html';
             return false;
         }
-
         targetUserId = parsedTargetUserId;
-
         // 更新UI
         document.getElementById('targetUserName').textContent = decodeURIComponent(targetUserName);
         // 更新头像文字
         const avatarText = decodeURIComponent(targetUserName).charAt(0).toUpperCase();
         document.getElementById('targetUserAvatar').textContent = avatarText;
         document.getElementById('targetUserAvatar').style.backgroundColor = getRandomColor();
-
         // 启用输入框和发送按钮 (根据需要)
         enableInput();
-
         // 加载聊天历史记录
-        loadChatHistory();
-
+        loadChatHistory(1, false).then(() => {
+            // 添加滚动监听器
+            addScrollListener();
+        });
         // --- 新增：连接 WebSocket ---
         connectWebSocket();
         // --- 新增结束 ---
-
         return true;
     }
-
     // 加载聊天历史记录 (调用后端接口)
-    async function loadChatHistory() {
+    async function loadChatHistory(page = 1, append = false) {
+        if (isLoading) return;
+        if (!append && isAllLoaded) return;
+        isLoading = true;
         const chatMessagesElement = document.getElementById('chatMessages');
-        chatMessagesElement.innerHTML = '<div class="loading">正在加载聊天记录...</div>';
-
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const loadingMore = document.getElementById('loadingMore');
+        if (!append) {
+            loadingIndicator.style.display = 'block';
+            chatMessagesElement.innerHTML = '';
+            chatMessagesElement.appendChild(loadingIndicator);
+        } else {
+            loadingMore.style.display = 'block';
+        }
         try {
-            // 调用后端接口获取历史消息
-            // 注意：URL 中的 targetUserId 是通过查询参数传递的
-            const response = await fetch(`/api/messages/history?targetUserId=${targetUserId}`, {
+            const response = await fetch(`/api/messages/history?targetUserId=${targetUserId}&page=${page}&size=${pageSize}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`,
                     'Content-Type': 'application/json'
                 }
             });
-
             const data = await response.json();
             console.log("后端返回的数据:", data);
             if (data.code === 200) {
-                displayMessages(data.data); // data.data 是消息数组
+                if (!append) {
+                    chatMessagesElement.innerHTML = '';
+                }
+                displayMessages(data.data, append);
+                // 更新分页状态
+                if (data.hasMore !== undefined) {
+                    hasMore = data.hasMore;
+                } else {
+                    // 如果后端没有返回 hasMore，根据数据长度判断
+                    hasMore = data.data && data.data.length === pageSize;
+                }
+                currentPage = data.currentPage || page;
+                if (!hasMore) {
+                    isAllLoaded = true;
+                    // 显示"没有更多消息"提示
+                    if (data.data && data.data.length > 0) {
+                        const noMoreElement = document.createElement('div');
+                        noMoreElement.className = 'system-message';
+                        noMoreElement.innerHTML = '<div class="message-bubble">没有更多消息了</div>';
+                        chatMessagesElement.insertBefore(noMoreElement, chatMessagesElement.firstChild);
+                    }
+                }
             } else {
                 throw new Error(data.message || '加载聊天记录失败');
             }
-
         } catch (error) {
             console.error('加载聊天记录失败:', error);
-            chatMessagesElement.innerHTML = `<div class="error-message">加载聊天记录失败: ${error.message}</div>`;
+            const errorElement = document.createElement('div');
+            errorElement.className = 'error-message';
+            errorElement.textContent = `加载聊天记录失败: ${error.message}`;
+            chatMessagesElement.appendChild(errorElement);
+        } finally {
+            loadingIndicator.style.display = 'none';
+            loadingMore.style.display = 'none';
+            isLoading = false;
         }
     }
-
-    // 展示消息列表
-    function displayMessages(messages) {
+    // 展示消息列表 - 修复滚动位置
+    function displayMessages(messages, append = false) {
         const chatMessagesElement = document.getElementById('chatMessages');
-        chatMessagesElement.innerHTML = ''; // 清空加载提示
-
+        if (!append) {
+            chatMessagesElement.innerHTML = '';
+        }
         if (!messages || messages.length === 0) {
-            chatMessagesElement.innerHTML = '<div class="system-message"><div class="message-bubble">还没有聊天记录</div></div>';
+            if (!append) {
+                const noMessageElement = document.createElement('div');
+                noMessageElement.className = 'system-message';
+                noMessageElement.innerHTML = '<div class="message-bubble">还没有聊天记录</div>';
+                chatMessagesElement.appendChild(noMessageElement);
+            }
             return;
         }
-
+        // 保存当前滚动位置信息
+        let oldHeight = chatMessagesElement.scrollHeight;
+        let oldScrollTop = chatMessagesElement.scrollTop;
         // 排序消息
         messages.sort((a, b) => {
             const dateA = parseTimestamp(a.timestamp);
             const dateB = parseTimestamp(b.timestamp);
             return dateA - dateB;
         });
-
         messages.forEach(msg => {
-            console.log("处理消息:", msg);
             if (msg.messageType === 'IMAGE') {
-                // 图片消息
-                appendImageMessage(msg.senderId, msg.content, msg.timestamp);
+                appendImageMessage(msg.senderId, msg.content, msg.timestamp, true); // 第四个参数表示不滚动
             } else {
-                // 文本消息
-                appendMessage(msg.senderId, msg.content, msg.timestamp);
+                appendMessage(msg.senderId, msg.content, msg.timestamp, true); // 第四个参数表示不滚动
             }
         });
-
-        // 滚动到底部
-        scrollToBottom();
+        // 如果是追加模式，修正滚动位置
+        if (append) {
+            // 修正滚动位置，保持用户看到的内容不变
+            let newHeight = chatMessagesElement.scrollHeight;
+            chatMessagesElement.scrollTop = oldScrollTop + (newHeight - oldHeight);
+        } else {
+            // 如果是首次加载，滚动到底部
+            setTimeout(() => {
+                scrollToBottom();
+            }, 100);
+        }
     }
-
     // ✅ 修改：增强 appendMessage 函数支持完整时间显示
-    function appendMessage(senderId, content, timestamp) {
+    function appendMessage(senderId, content, timestamp, noScroll = false) {
         const chatMessagesElement = document.getElementById('chatMessages');
-
         const messageContainer = document.createElement('div');
         messageContainer.className = 'message-container';
-
         const isSent = senderId === currentUserId;
         messageContainer.classList.add(isSent ? 'sent-message' : 'received-message');
-
         // 使用新函数格式化时间
         const formattedTime = formatMessageTime(timestamp);
-        console.log("格式化后的时间:", formattedTime);
-
         messageContainer.innerHTML = `
             <div class="message-bubble">
                 ${content}
                 <div class="message-info">${formattedTime}</div>
             </div>
         `;
-
         chatMessagesElement.appendChild(messageContainer);
-        scrollToBottom();
-    }
-
-    // 显示图片消息
-    // 在 appendImageMessage 函数中添加路径修复逻辑
-    function appendImageMessage(senderId, imageUrl, timestamp) {
-        const chatMessagesElement = document.getElementById('chatMessages');
-
-        // 修复图片路径：确保以 /uploads/ 开头
-        let fixedImageUrl = imageUrl;
-        if (fixedImageUrl && !fixedImageUrl.startsWith('/uploads/')) {
-            // 如果没有以 /uploads/ 开头，添加前缀
-            fixedImageUrl = '/uploads/' + fixedImageUrl;
+        if (!noScroll) {
+            scrollToBottom();
         }
-
+    }
+    // 显示图片消息 - 修复图片路径问题
+    function appendImageMessage(senderId, imageUrl, timestamp, noScroll = false) {
+        const chatMessagesElement = document.getElementById('chatMessages');
+        // 修复图片路径 - 确保是完整URL
+        let fixedImageUrl = imageUrl;
+        if (fixedImageUrl && !fixedImageUrl.startsWith('http')) {
+            if (fixedImageUrl.startsWith('/')) {
+                fixedImageUrl = window.location.origin + fixedImageUrl;
+            } else {
+                fixedImageUrl = window.location.origin + '/' + fixedImageUrl;
+            }
+        }
         const messageContainer = document.createElement('div');
         messageContainer.className = 'message-container';
-
         const isSent = senderId === currentUserId;
         messageContainer.classList.add(isSent ? 'sent-message' : 'received-message');
-
         const formattedTime = formatMessageTime(timestamp);
-
         messageContainer.innerHTML = `
-        <div class="message-bubble">
-            <img src="${fixedImageUrl}" alt="图片" style="max-width: 200px; border-radius: 8px; cursor: pointer;" onclick="window.open('${fixedImageUrl}', '_blank')">
-            <div class="message-info">${formattedTime}</div>
-        </div>
-    `;
-
+            <div class="message-bubble">
+                <img src="${fixedImageUrl}" alt="图片" style="max-width: 200px; border-radius: 8px; cursor: pointer;"
+                     onerror="console.error('图片加载失败:', '${fixedImageUrl}')"
+                     onload="console.log('图片加载成功:', '${fixedImageUrl}')">
+                <div class="message-info">${formattedTime}</div>
+            </div>
+        `;
         chatMessagesElement.appendChild(messageContainer);
-        scrollToBottom();
+        if (!noScroll) {
+            scrollToBottom();
+        }
     }
-
     // --- WebSocket 相关函数 ---
     // --- WebSocket 连接函数 ---
     function connectWebSocket() {
         const token = localStorage.getItem('token');
+        const username = localStorage.getItem('name'); // 获取用户名
         if (!token) {
             console.error('No token found, cannot connect to WebSocket');
             alert('未登录，无法建立实时连接');
             return;
         }
-
         // 1. 创建 SockJS 连接，并将 token 作为查询参数传递
         const socket = new SockJS('/ws?token=Bearer ' + token); // 注意 URL 和 token 格式
-
         // 2. 创建 STOMP 客户端
         stompClient = Stomp.over(socket);
-
         // 3. 连接到服务器
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
             isConnected = true;
-
             // 4. 订阅接收发送给当前用户的消息
             const subscriptionTopic = `/topic/messages/user/${currentUserId}`;
             stompClient.subscribe(subscriptionTopic, function (messageOutput) {
@@ -520,54 +700,109 @@
                 handleReceivedMessage(JSON.parse(messageOutput.body));
             });
 
+            // --- 新增：发送 JOIN 消息 ---
+            if (username) {
+                const joinMessage = {
+                    type: 'JOIN',
+                    sender: username,
+                    senderId: currentUserId
+                };
+                stompClient.send("/app/chat.addUser", {}, JSON.stringify(joinMessage));
+                console.log("JOIN message sent:", joinMessage);
+            }
+            // --- 新增结束 ---
+
         }, function (error) {
             console.error('STOMP error: ' + error);
             isConnected = false;
         });
     }
-
-    // --- 处理接收到的消息 ---
+    // --- 处理接收到的消息 - 修复图片显示问题 ---
     function handleReceivedMessage(payload) {
-        console.log("Received message via WebSocket:", payload);
+        console.log("收到WebSocket消息:", payload);
 
-        // 检查消息类型并处理
-        if (payload.type === 'CHAT' || payload.messageType === 'TEXT') {
-            // 文本消息
-            if (payload.senderId === targetUserId) {
-                const timestamp = payload.timestamp ? payload.timestamp : new Date();
-                appendMessage(payload.senderId, payload.content, timestamp);
+        // --- 新增/修正：处理非当前聊天对象的消息 (例如系统通知) ---
+        const isFromTarget = payload.senderId === targetUserId;
+        if (!isFromTarget) {
+            // 检查是否是视频通话邀请
+            if (payload.type === 'VIDEO_CALL_OFFER') {
+                console.log("收到非当前聊天对象的视频通话邀请");
+                // 显示系统通知或来电界面
+                showIncomingCallModal(payload.sender, payload.senderId);
+                return; // 不继续处理为普通消息
             }
-        } else if (payload.type === 'IMAGE' || payload.messageType === 'IMAGE') {
-            // 图片消息
-            if (payload.senderId === targetUserId) {
-                const timestamp = payload.timestamp ? payload.timestamp : new Date();
-                appendImageMessage(payload.senderId, payload.content, timestamp);
-            }
+            // 其他非当前聊天对象的消息可以显示为系统通知 (可选)
+            // appendSystemMessage(`来自 ${payload.sender || '未知用户'} 的消息: ${payload.content || ''}`);
+            return; // 如果不是当前聊天对象，且不是视频通话邀请，则不处理为普通聊天消息
         }
+        // --- 新增/修正结束 ---
+
+
+        // 根据消息类型处理
+        if (payload.messageType === 'TEXT') {
+            // 文本消息
+            const timestamp = payload.timestamp ? payload.timestamp : new Date();
+            appendMessage(payload.senderId, payload.content, timestamp);
+        } else if (payload.messageType === 'IMAGE') {
+            // 图片消息
+            console.log("收到图片消息:", payload.content);
+            const timestamp = payload.timestamp ? payload.timestamp : new Date();
+            appendImageMessage(payload.senderId, payload.content, timestamp);
+        }
+        // --- 新增：处理视频通话信令消息 ---
+        else if (payload.type === 'VIDEO_CALL_OFFER') {
+            console.log("收到视频通话邀请 (Offer)");
+            showIncomingCallModal(payload.sender, payload.senderId);
+            // 保存 Offer 供接受时使用
+            pendingOffer = payload.offer;
+            currentCallerId = payload.senderId;
+        } else if (payload.type === 'VIDEO_CALL_ANSWER') {
+            console.log("对方接受视频通话 (Answer)");
+            if (peerConnection && payload.answer) {
+                peerConnection.setRemoteDescription(new RTCSessionDescription(payload.answer))
+                    .then(() => console.log("Remote description (Answer) set successfully"))
+                    .catch(err => console.error("Error setting remote description (Answer):", err));
+            }
+        } else if (payload.type === 'VIDEO_CALL_ICE_CANDIDATE') {
+            console.log("收到 ICE Candidate");
+            if (peerConnection && payload.candidate) {
+                peerConnection.addIceCandidate(new RTCIceCandidate(payload.candidate))
+                    .then(() => console.log("ICE candidate added successfully"))
+                    .catch(err => console.error("Error adding ICE candidate:", err));
+            }
+        } else if (payload.type === 'VIDEO_CALL_HANGUP') {
+            console.log("对方挂断/拒绝了视频通话");
+            endCall();
+        }
+        // --- 新增结束 ---
     }
+
+    // --- 新增：显示来电模态框 ---
+    function showIncomingCallModal(callerName, callerId) {
+        document.getElementById('callerName').textContent = callerName || '未知用户';
+        document.getElementById('incomingCallModal').style.display = 'flex'; // 显示模态框
+        // 保存发起者ID，供接受/拒绝时使用
+        currentCallerId = callerId;
+    }
+    // --- 新增结束 ---
 
     // --- 修改 sendMessage 函数以使用 WebSocket ---
     // 发送消息 (调用后端接口)
     async function sendMessage() {
         const inputElement = document.getElementById('messageInput');
         const content = inputElement.value.trim();
-
         if (!content) return;
-
         const sendButton = document.getElementById('sendButton');
         sendButton.disabled = true;
-
         try {
             // 1. 立即在本地显示消息 (乐观更新)
             const tempTimestamp = new Date();
             appendMessage(currentUserId, content, tempTimestamp);
-
             // 2. 清空输入框
             inputElement.value = '';
             inputElement.style.height = 'auto';
             adjustInputHeight();
             disableSendButton();
-
             // --- 关键修改点：通过 WebSocket 发送消息 ---
             if (isConnected && stompClient) {
                 const chatMessage = {
@@ -596,7 +831,6 @@
                         messageType: 'TEXT'
                     })
                 });
-
                 const data = await response.json();
                 if (data.code !== 200) {
                     console.error('发送消息失败 (REST API):', data.message);
@@ -605,7 +839,6 @@
                     console.log("消息发送成功 (REST API):", data);
                 }
             }
-
         } catch (error) {
             console.error('发送消息时出错:', error);
             alert('发送消息失败: ' + error.message);
@@ -613,27 +846,21 @@
             sendButton.disabled = false;
         }
     }
-
     // 图片上传按钮点击事件
     document.getElementById('imageUploadButton').addEventListener('click', function () {
         document.getElementById('imageInput').click();
     });
-
     // 图片选择后上传
     document.getElementById('imageInput').addEventListener('change', async function (event) {
         const file = event.target.files[0];
         if (!file) return;
-
         console.log("开始上传图片:", file.name);
-
         // 显示上传中提示
         const originalButtonHTML = document.getElementById('imageUploadButton').innerHTML;
         document.getElementById('imageUploadButton').innerHTML = '⏳';
         document.getElementById('imageUploadButton').disabled = true;
-
         const formData = new FormData();
         formData.append('file', file);
-
         try {
             console.log("正在上传图片...");
             const response = await fetch('/api/upload/image', {
@@ -643,14 +870,11 @@
                 },
                 body: formData
             });
-
             const data = await response.json();
             console.log("上传响应:", data);
-
             if (data.code === 200) {
                 const imageUrl = data.data; // 后端返回图片 URL
                 console.log("图片上传成功，URL:", imageUrl);
-
                 // 调用发送图片消息函数
                 console.log("调用sendImageMessage函数...");
                 await sendImageMessage(imageUrl);
@@ -668,31 +892,40 @@
             event.target.value = '';
         }
     });
-
-    // 发送图片消息
-    // 在 sendImageMessage 函数中，确保消息类型正确
+    // 发送图片消息 - 修复图片路径问题
     async function sendImageMessage(imageUrl) {
         if (!imageUrl) return;
-
         try {
+            // 修复图片路径 - 确保是完整URL
+            let fixedImageUrl = imageUrl;
+            if (fixedImageUrl && !fixedImageUrl.startsWith('http')) {
+                if (fixedImageUrl.startsWith('/')) {
+                    fixedImageUrl = window.location.origin + fixedImageUrl;
+                } else {
+                    fixedImageUrl = window.location.origin + '/' + fixedImageUrl;
+                }
+            }
             const tempTimestamp = new Date();
-            appendImageMessage(currentUserId, imageUrl, tempTimestamp);
-
+            // 立即在本地显示图片消息
+            appendImageMessage(currentUserId, fixedImageUrl, tempTimestamp);
+            console.log("准备发送图片消息，当前WebSocket状态:", isConnected);
             if (isConnected && stompClient) {
+                // 通过 WebSocket 发送图片消息
                 const chatMessage = {
-                    type: 'IMAGE',
-                    content: imageUrl,
+                    type: 'IMAGE', // 注意这里 type 是 IMAGE
+                    content: fixedImageUrl, // 使用完整URL
                     sender: localStorage.getItem('name'),
                     senderId: currentUserId,
                     receiverId: targetUserId,
-                    messageType: 'IMAGE', // 明确指定消息类型
+                    messageType: 'IMAGE', // messageType 也是 IMAGE
                     timestamp: tempTimestamp.toISOString()
                 };
-
+                console.log("通过WebSocket发送图片消息:", chatMessage);
                 stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
                 console.log("图片消息已通过WebSocket发送");
             } else {
                 // 回退到 REST API
+                console.log("WebSocket未连接，使用REST API发送图片消息");
                 const response = await fetch('/api/messages/send', {
                     method: 'POST',
                     headers: {
@@ -701,25 +934,28 @@
                     },
                     body: JSON.stringify({
                         receiverId: targetUserId,
-                        content: imageUrl,
+                        content: fixedImageUrl, // 使用完整URL
                         messageType: 'IMAGE'
                     })
                 });
-
                 const data = await response.json();
                 console.log("REST API发送结果:", data);
+                if (data.code !== 200) {
+                    console.error('发送图片消息失败:', data.message);
+                    alert('发送图片消息失败: ' + data.message);
+                } else {
+                    console.log("图片消息发送成功:", data);
+                }
             }
         } catch (error) {
             console.error('发送图片消息时出错:', error);
             alert('发送图片消息失败: ' + error.message);
         }
     }
-
     // 回到上一页 (聊天用户选择页面)
     function goBack() {
         window.location.href = 'liaotian.html';
     }
-
     // 调整输入框高度以适应内容
     function adjustInputHeight() {
         const inputElement = document.getElementById('messageInput');
@@ -727,13 +963,11 @@
         const newHeight = Math.min(inputElement.scrollHeight, 100); // 限制最大高度
         inputElement.style.height = newHeight + 'px';
     }
-
     // 启用输入框和发送按钮
     function enableInput() {
         const inputElement = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
         inputElement.disabled = false;
-
         // 输入框内容变化时检查是否启用发送按钮
         inputElement.addEventListener('input', function() {
             adjustInputHeight();
@@ -743,7 +977,6 @@
                 sendButton.disabled = true;
             }
         });
-
         // 回车发送 (无 Shift)
         inputElement.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -753,10 +986,8 @@
                 }
             }
         });
-
         // 为发送按钮绑定点击事件
         sendButton.addEventListener('click', sendMessage);
-
         // 初始状态根据是否有内容决定
         if (inputElement.value.trim()) {
             sendButton.disabled = false;
@@ -764,36 +995,272 @@
             sendButton.disabled = true;
         }
     }
-
     // 禁用发送按钮
     function disableSendButton() {
         document.getElementById('sendButton').disabled = true;
     }
-
     // 滚动聊天记录到底部
     function scrollToBottom() {
         const chatMessagesElement = document.getElementById('chatMessages');
         chatMessagesElement.scrollTop = chatMessagesElement.scrollHeight;
     }
-
     // 生成随机颜色用于头像背景 (简单示例)
     function getRandomColor() {
         const colors = ['#25d366', '#075e54', '#128c7e', '#008069', '#34b7f1', '#25d366'];
         return colors[Math.floor(Math.random() * colors.length)];
     }
+    // 添加滚动事件监听器 - 修复滚动判断条件
+    function addScrollListener() {
+        const chatMessagesElement = document.getElementById('chatMessages');
+        chatMessagesElement.addEventListener('scroll', function() {
+            // 改进滚动判断条件，使用更敏感的阈值
+            if (chatMessagesElement.scrollTop <= 20 && hasMore && !isLoading && !isAllLoaded) {
+                console.log("触发加载更多消息");
+                loadMoreMessages();
+            }
+        });
+    }
+    // 加载更多消息
+    async function loadMoreMessages() {
+        if (!hasMore || isLoading || isAllLoaded) return;
+        console.log("加载更多消息，当前页:", currentPage + 1);
+        await loadChatHistory(currentPage + 1, true);
+    }
+
+    // --- WebRTC 核心逻辑 ---
+
+    // 1. 发起呼叫
+    async function startCall() {
+        console.log("发起视频通话到用户 ID:", targetUserId);
+        isInitiator = true;
+        try {
+            await getLocalStream();
+            createPeerConnection();
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+            console.log("创建 Offer 并设置本地描述");
+
+            if (isConnected && stompClient) {
+                const callMessage = {
+                    type: 'VIDEO_CALL_OFFER',
+                    sender: localStorage.getItem('name'),
+                    senderId: currentUserId,
+                    receiverId: targetUserId,
+                    offer: offer
+                };
+                stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(callMessage));
+                console.log("视频通话邀请 (Offer) 已发送:", callMessage);
+                showVideoCallInterface();
+                updateCallStatus("等待对方接受...");
+            } else {
+                throw new Error("WebSocket 未连接");
+            }
+        } catch (error) {
+            console.error("发起呼叫失败:", error);
+            alert("发起视频通话失败: " + error.message);
+            endCall(); // 清理资源
+        }
+    }
+
+    // 2. 接受呼叫
+    async function acceptCall() {
+        console.log("接受来自用户 ID:", currentCallerId, " 的视频通话");
+        document.getElementById('incomingCallModal').style.display = 'none';
+        isInitiator = false;
+        try {
+            await getLocalStream();
+            createPeerConnection();
+
+            if (pendingOffer) {
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(pendingOffer));
+                console.log("设置远程 Offer");
+
+                const answer = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answer);
+                console.log("创建 Answer 并设置本地描述");
+
+                if (isConnected && stompClient && currentCallerId) {
+                    const answerMessage = {
+                        type: 'VIDEO_CALL_ANSWER',
+                        sender: localStorage.getItem('name'),
+                        senderId: currentUserId,
+                        receiverId: currentCallerId,
+                        answer: answer
+                    };
+                    stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(answerMessage));
+                    console.log("视频通话接受 (Answer) 已发送:", answerMessage);
+                    showVideoCallInterface();
+                    updateCallStatus("已连接");
+                } else {
+                    throw new Error("WebSocket 未连接或缺少发起者信息");
+                }
+            } else {
+                throw new Error("缺少 Offer 信息");
+            }
+        } catch (error) {
+            console.error("接受呼叫失败:", error);
+            alert("接受视频通话失败: " + error.message);
+            endCall(); // 清理资源
+        }
+    }
+
+    // 3. 拒绝/挂断呼叫
+    function declineCall() {
+        console.log("拒绝/挂断来自用户 ID:", currentCallerId, " 的视频通话");
+        document.getElementById('incomingCallModal').style.display = 'none';
+        if (isConnected && stompClient && currentCallerId) {
+            const hangupMessage = {
+                type: 'VIDEO_CALL_HANGUP',
+                sender: localStorage.getItem('name'),
+                senderId: currentUserId,
+                receiverId: currentCallerId,
+            };
+            stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(hangupMessage));
+            console.log("视频通话拒绝/挂断 (Hangup) 已发送:", hangupMessage);
+        }
+        endCall(); // 本地也结束通话
+    }
+
+    // 4. 获取本地媒体流
+    async function getLocalStream() {
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            document.getElementById('localVideo').srcObject = localStream;
+            console.log("获取本地媒体流成功");
+        } catch (error) {
+            console.error("获取本地媒体流失败:", error);
+            throw new Error("无法访问摄像头或麦克风: " + error.message);
+        }
+    }
+
+    // 5. 创建 RTCPeerConnection
+    function createPeerConnection() {
+        peerConnection = new RTCPeerConnection(configuration);
+
+        // 添加本地流到连接
+        if (localStream) {
+            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+        }
+
+        // 处理接收到的远程流
+        peerConnection.ontrack = event => {
+            console.log("接收到远程媒体流");
+            document.getElementById('remoteVideo').srcObject = event.streams[0];
+            updateCallStatus("通话中");
+        };
+
+        // 处理 ICE Candidate
+        peerConnection.onicecandidate = event => {
+            if (event.candidate) {
+                console.log("发送 ICE Candidate");
+                if (isConnected && stompClient) {
+                    const candidateMessage = {
+                        type: 'VIDEO_CALL_ICE_CANDIDATE',
+                        sender: localStorage.getItem('name'),
+                        senderId: currentUserId,
+                        receiverId: isInitiator ? targetUserId : currentCallerId,
+                        candidate: event.candidate
+                    };
+                    stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(candidateMessage));
+                }
+            }
+        };
+
+        // 连接状态变化
+        peerConnection.onconnectionstatechange = () => {
+            console.log("PeerConnection 状态:", peerConnection.connectionState);
+            if (peerConnection.connectionState === 'disconnected' || peerConnection.connectionState === 'failed') {
+                updateCallStatus("连接已断开");
+                setTimeout(endCall, 2000); // 2秒后自动结束
+            }
+        };
+        peerConnection.onsignalingstatechange = () => {
+            console.log("Signaling 状态:", peerConnection.signalingState);
+        };
+        peerConnection.oniceconnectionstatechange = () => {
+            console.log("ICE 连接状态:", peerConnection.iceConnectionState);
+        };
+    }
+
+    // 6. 结束通话
+    function endCall() {
+        console.log("结束视频通话");
+        // 发送挂断消息（如果连接还活着）
+        if (isConnected && stompClient && (targetUserId || currentCallerId)) {
+            const hangupMessage = {
+                type: 'VIDEO_CALL_HANGUP',
+                sender: localStorage.getItem('name'),
+                senderId: currentUserId,
+                receiverId: isInitiator ? targetUserId : currentCallerId,
+            };
+            stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(hangupMessage));
+        }
+
+        // 清理资源
+        if (peerConnection) {
+            peerConnection.close();
+            peerConnection = null;
+        }
+        if (localStream) {
+            localStream.getTracks().forEach(track => track.stop());
+            localStream = null;
+        }
+        document.getElementById('localVideo').srcObject = null;
+        document.getElementById('remoteVideo').srcObject = null;
+        hideVideoCallInterface();
+        updateCallStatus("正在连接...");
+        // 重置状态
+        isInitiator = false;
+        pendingOffer = null;
+        currentCallerId = null;
+    }
+
+    // 7. 显示/隐藏视频通话界面
+    function showVideoCallInterface() {
+        document.getElementById('videoCallInterface').style.display = 'flex';
+    }
+    function hideVideoCallInterface() {
+        document.getElementById('videoCallInterface').style.display = 'none';
+    }
+
+    // 8. 更新通话状态
+    function updateCallStatus(status) {
+        document.getElementById('callStatus').textContent = status;
+    }
+
+    // --- 事件监听器 ---
+
+    // 视频通话按钮点击事件
+    document.getElementById('videoCallButton').addEventListener('click', function() {
+        console.log("用户点击了视频通话按钮");
+        startCall();
+    });
+
+    // 来电模态框按钮事件
+    document.getElementById('acceptCallButton')?.addEventListener('click', function() {
+        acceptCall();
+    });
+    document.getElementById('declineCallButton')?.addEventListener('click', function() {
+        declineCall();
+    });
+
+    // 挂断按钮事件
+    document.getElementById('hangupButton')?.addEventListener('click', function() {
+        endCall();
+    });
 
     // 页面加载完成后执行初始化
     document.addEventListener('DOMContentLoaded', function() {
         if (!initChat()) {
             return; // 如果初始化失败（如未登录），则不继续
         }
-
         // 初始化输入框高度调整
         adjustInputHeight();
     });
 
-    // --- 页面卸载时断开 WebSocket 连接 ---
+    // 页面卸载时断开 WebSocket 连接和结束通话
     window.addEventListener('beforeunload', function() {
+        endCall(); // 确保通话结束
         if (isConnected && stompClient) {
             stompClient.disconnect();
             console.log("Disconnected from WebSocket");

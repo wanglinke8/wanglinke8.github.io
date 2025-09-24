@@ -7,7 +7,6 @@ import com.nsc.ipfind.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
@@ -29,7 +28,16 @@ public class ChatController {
         try {
             System.out.println("收到WebSocket消息: " + chatMessage);
 
-            // 保存消息到数据库
+            // 判断是否是视频通话相关消息
+            if (isVideoCallMessage(chatMessage.getType())) {
+                // 直接转发给接收者，不保存到数据库
+                String destination = "/topic/messages/user/" + chatMessage.getReceiverId();
+                messagingTemplate.convertAndSend(destination, chatMessage);
+                System.out.println("视频通话消息已转发到: " + destination);
+                return;
+            }
+
+            // 保存普通聊天消息到数据库
             if (chatMessage.getSenderId() != null && chatMessage.getReceiverId() != null) {
                 Message message = new Message();
                 message.setSenderId(chatMessage.getSenderId());
@@ -76,10 +84,16 @@ public class ChatController {
         if (zhanghao != null && !zhanghao.isEmpty()) {
             chatMessage.setSender(zhanghao);
             System.out.println("User joined (authenticated): " + zhanghao);
-            // 可以广播加入消息
-            // messagingTemplate.convertAndSend("/topic/public", chatMessage);
         } else {
             System.out.println("Anonymous user joined.");
         }
+    }
+
+    // 辅助方法：判断是否为视频通话消息
+    private boolean isVideoCallMessage(ChatMessage.MessageType type) {
+        return type == ChatMessage.MessageType.VIDEO_CALL_OFFER ||
+                type == ChatMessage.MessageType.VIDEO_CALL_ANSWER ||
+                type == ChatMessage.MessageType.VIDEO_CALL_ICE_CANDIDATE ||
+                type == ChatMessage.MessageType.VIDEO_CALL_HANGUP;
     }
 }

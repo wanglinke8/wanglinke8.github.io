@@ -10,7 +10,7 @@ import java.io.File;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
-    @Value("${file.upload.path:uploads/}")
+    @Value("${file.upload.path:/home/www/wwwroot/java-app/uploads/}")
     private String uploadPath;
 
     @Value("${file.access.path:/uploads/}")
@@ -18,21 +18,47 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 确保 uploads 目录存在
-        File uploadDir = new File(uploadPath);
-        if (!uploadDir.exists()) {
-            uploadDir.mkdirs();
+        System.out.println("=== WebMvcConfig.addResourceHandlers 被调用 ===");
+
+        // 处理访问路径，确保格式正确
+        String normalizedAccessPath = accessPath;
+        if (!normalizedAccessPath.startsWith("/")) {
+            normalizedAccessPath = "/" + normalizedAccessPath;
+        }
+        if (!normalizedAccessPath.endsWith("/**")) {
+            if (normalizedAccessPath.endsWith("/")) {
+                normalizedAccessPath += "**";
+            } else {
+                normalizedAccessPath += "/**";
+            }
         }
 
-        // 配置静态资源映射
+        // 处理文件路径
+        String normalizedUploadPath = uploadPath;
+        if (!normalizedUploadPath.endsWith("/")) {
+            normalizedUploadPath += "/";
+        }
+
+        // 确保目录存在
+        File uploadDir = new File(normalizedUploadPath);
+        if (!uploadDir.exists()) {
+            boolean created = uploadDir.mkdirs();
+            System.out.println("创建上传目录: " + created + ", 路径: " + uploadDir.getAbsolutePath());
+        }
+
+        // 构造资源位置
         String location = "file:" + uploadDir.getAbsolutePath() + "/";
 
-        System.out.println("静态资源映射配置:");
-        System.out.println("访问路径: /uploads/**");
-        System.out.println("实际路径: " + location);
+        System.out.println("=== 静态资源映射详情 ===");
+        System.out.println("ResourceHandler: " + normalizedAccessPath);
+        System.out.println("ResourceLocations: " + location);
+        System.out.println("上传目录绝对路径: " + uploadDir.getAbsolutePath());
+        System.out.println("上传目录是否存在: " + uploadDir.exists());
+        System.out.println("========================");
 
-        registry.addResourceHandler("/uploads/**")
+        // 添加资源处理器
+        registry.addResourceHandler(normalizedAccessPath)
                 .addResourceLocations(location)
-                .setCachePeriod(0); // 禁用缓存便于调试
+                .setCachePeriod(0);
     }
 }
