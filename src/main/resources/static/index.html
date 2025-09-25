@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Personal Digital Space</title>
     <link rel="icon" type="image/x-icon" href="./img/坤坤.jpg">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css  ">
     <style>
         * {
             margin: 0;
@@ -551,6 +551,33 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
         }
+
+        /* 用户头像样式 */
+        .user-avatar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .user-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            object-fit: cover;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+
+        .default-avatar-icon {
+            font-size: 3rem;
+        }
     </style>
 </head>
 <body>
@@ -598,8 +625,12 @@
 </header>
 <main>
     <section class="hero-section" id="home">
-        <h1 class="hero-title">欢迎来到我的数字世界</h1>
-        <p class="hero-subtitle">探索音乐、视频、游戏和更多精彩内容<br>在这里发现无限可能</p>
+        <!-- 新增：用户头像区域 -->
+        <div class="user-avatar-container">
+            <img id="userAvatar" class="user-avatar" src="" alt="用户头像">
+        </div>
+        <h1 class="hero-title">欢迎</h1>
+        <p class="hero-subtitle">聊天、探索音乐、视频、游戏和更多精彩内容<br>在这里发现无限可能</p>
     </section>
     <section class="modules-grid">
         <!-- 聊天模块 (新增) -->
@@ -756,18 +787,18 @@
                     // 说明APP可能未安装或打开失败，则跳转到网页版
                     const afterTime = Date.now();
                     if (!appOpened && (afterTime - beforeTime) >= 1800) {
-                        window.location.href = 'https://v.qq.com/';
+                        window.location.href = 'https://v.qq.com/  ';
                     }
                 }, 2000);
 
             } catch (error) {
                 // 如果出现错误，直接跳转到网页版
                 console.log('尝试打开APP失败，跳转到网页版');
-                window.location.href = 'https://v.qq.com/';
+                window.location.href = 'https://v.qq.com/  ';
             }
         } else {
             // 桌面端直接跳转到网页版
-            window.location.href = 'https://v.qq.com/';
+            window.location.href = 'https://v.qq.com/  ';
         }
     }
 
@@ -779,7 +810,7 @@
         const isAndroid = /Android/.test(navigator.userAgent);
 
         // 王者荣耀官网 URL
-        const webUrl = 'https://pvp.qq.com/';
+        const webUrl = 'https://pvp.qq.com/  ';
 
         if (isMobile) {
             // 移动端逻辑：尝试打开王者荣耀APP
@@ -923,6 +954,7 @@
         if (confirm('确定退出？')) {
             localStorage.removeItem('token');
             localStorage.removeItem('zhanghao');
+            localStorage.removeItem('avatarurl'); // 同时清除头像信息
             window.location.href = 'login.html';
         }
     }
@@ -963,6 +995,7 @@
         // 1. 检查登录状态
         const token = localStorage.getItem('token');
         const name = localStorage.getItem('name');
+        const avatarurl = localStorage.getItem('avatarurl'); // 获取头像URL
 
         if (!token) {
             alert('未登录，请登录');
@@ -971,6 +1004,17 @@
         } else {
             document.getElementById('welcomeText').textContent = `欢迎您：${name}`;
             document.getElementById('userInfo').style.display = 'flex';
+
+            // 显示用户头像
+            const userAvatarElement = document.getElementById('userAvatar');
+            if (avatarurl && avatarurl.trim() !== '') {
+                userAvatarElement.src = avatarurl;
+                userAvatarElement.alt = `${name}的头像`;
+            } else {
+                // 如果没有头像URL，显示默认图标
+                userAvatarElement.innerHTML = '<i class="fas fa-user default-avatar-icon"></i>';
+                userAvatarElement.alt = '默认头像';
+            }
         }
 
         // 2. 初始化其他功能

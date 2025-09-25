@@ -53,6 +53,7 @@ public class LoginController {
         response.put("zhanghao", user.getZhanghao());
         response.put("name", user.getName());
         response.put("id", user.getId());
+        response.put("avatarurl", user.getAvatarurl());
 
         return ResponseEntity.ok(response);
     }

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>修改个人资料</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css ">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px; /* Add padding for small screens */
+        }
+        .profile-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem 2.5rem;
+            width: 100%;
+            max-width: 500px; /* Set a max width */
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        .profile-title {
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .avatar-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .current-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            object-fit: cover;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 4rem;
+        }
+        .default-avatar-icon {
+            font-size: 4rem;
+        }
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-top: 1rem;
+        }
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        .upload-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .upload-button:hover {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.12);
+        }
+        .save-button {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+        }
+        .save-button:hover {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        .error-message {
+            color: #ff6b6b;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+        .success-message {
+            color: #66ee9b; /* Green color for success */
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+        .back-to-home {
+            display: block;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        .back-to-home:hover {
+            color: #764ba2;
+        }
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .profile-container {
+                padding: 2rem 1.5rem;
+            }
+            .profile-title {
+                font-size: 1.8rem;
+            }
+            .current-avatar {
+                width: 120px;
+                height: 120px;
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="profile-container">
+    <h2 class="profile-title">修改个人资料</h2>
+    <div class="avatar-section">
+        <img id="currentAvatar" class="current-avatar" src="" alt="当前头像">
+        <div class="file-input-wrapper">
+            <input type="file" id="avatarInput" accept="image/*">
+            <button class="upload-button"><i class="fas fa-upload"></i> 选择头像</button>
+        </div>
+    </div>
+    <form id="profileForm">
+        <div class="form-group">
+            <label for="newName">姓名:</label>
+            <input type="text" id="newName" name="name" required>
+        </div>
+        <div class="form-group">
+            <label for="newZhanghao">账号:</label>
+            <input type="text" id="newZhanghao" name="zhanghao" required>
+        </div>
+        <button type="submit" class="save-button">保存修改</button>
+    </form>
+    <div id="messageArea" class="message-area"></div>
+    <a href="index.html" class="back-to-home">返回主页</a>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const token = localStorage.getItem('token');
+        const currentName = localStorage.getItem('name');
+        const currentZhanghao = localStorage.getItem('zhanghao');
+        const currentAvatarUrl = localStorage.getItem('avatarurl'); // 获取当前头像URL
+
+        if (!token) {
+            alert('未登录，请先登录');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // 填充当前用户信息
+        document.getElementById('newName').value = currentName || '';
+        document.getElementById('newZhanghao').value = currentZhanghao || '';
+
+        // 显示当前头像
+        const currentAvatarElement = document.getElementById('currentAvatar');
+        if (currentAvatarUrl && currentAvatarUrl.trim() !== '') {
+            currentAvatarElement.src = currentAvatarUrl;
+            currentAvatarElement.alt = `${currentName}的头像`;
+        } else {
+            // 如果没有头像URL，显示默认图标
+            currentAvatarElement.innerHTML = '<i class="fas fa-user default-avatar-icon"></i>';
+            currentAvatarElement.alt = '默认头像';
+        }
+
+        const profileForm = document.getElementById('profileForm');
+        const messageArea = document.getElementById('messageArea');
+        const avatarInput = document.getElementById('avatarInput');
+
+        profileForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            messageArea.innerHTML = ''; // Clear previous messages
+
+            const newName = document.getElementById('newName').value.trim();
+            const newZhanghao = document.getElementById('newZhanghao').value.trim();
+
+            if (!newName || !newZhanghao) {
+                messageArea.innerHTML = '<p class="error-message">姓名和账号不能为空</p>';
+                return;
+            }
+
+            // 检查是否有新文件被选中
+            const file = avatarInput.files[0];
+            let formData = new FormData();
+            formData.append('name', newName);
+            formData.append('zhanghao', newZhanghao);
+            if (file) {
+                formData.append('avatar', file); // 后端接收文件的字段名
+            } else {
+                // 如果没有选择新文件，传递当前头像URL，后端可以选择性更新
+                // 但更常见的是，后端只更新提供的字段，不传avatar则不更新头像。
+                // 这里我们直接不传递 avatar 字段。
+            }
+
+            try {
+                const response = await fetch('/api/users/update', { // 假设后端有此API
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}` // 假设后端使用Bearer token验证
+                        // 注意：当使用 FormData 时，不要手动设置 'Content-Type'
+                    },
+                    body: formData
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    // 更新成功
+                    messageArea.innerHTML = '<p class="success-message">资料更新成功！</p>';
+                    // 更新localStorage中的信息
+                    localStorage.setItem('name', newName);
+                    localStorage.setItem('zhanghao', newZhanghao);
+                    // 如果后端返回了新的头像URL，则更新
+                    if (result.avatarurl) {
+                        localStorage.setItem('avatarurl', result.avatarurl);
+                        // 同时更新页面上显示的头像
+                        currentAvatarElement.src = result.avatarurl;
+                        currentAvatarElement.alt = `${newName}的头像`;
+                    }
+                    // --- 修改：添加自动跳转逻辑 ---
+                    // 资料更新成功后，自动跳转到主页面
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500); // 1.5秒后跳转，给用户时间看到成功消息
+                    // --- 修改结束 ---
+                } else {
+                    // 更新失败
+                    const errorMessage = result.message || '更新失败，请重试';
+                    messageArea.innerHTML = `<p class="error-message">${errorMessage}</p>`;
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                messageArea.innerHTML = '<p class="error-message">网络错误，请检查连接</p>';
+            }
+        });
+
+        // Optional: Preview selected image before upload
+        avatarInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentAvatarElement.src = e.target.result;
+                    currentAvatarElement.alt = '新头像预览';
+                    // 清除默认图标，如果之前是默认图标
+                    currentAvatarElement.innerHTML = '';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    });
+</script>
+</body>
+</html>

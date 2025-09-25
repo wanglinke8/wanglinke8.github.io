@@ -2,6 +2,7 @@ package com.nsc.ipfind.service;
 
 import com.nsc.ipfind.pojos.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
 * @author Lenovo
@@ -13,4 +14,6 @@ public interface UserService extends IService<User> {
     User getUserByUsername(String zhanghao);
 
     User getByname(String name);
+
+    User updateUserInfo(String token, String newName, String newZhanghao, MultipartFile avatarFile);
 }
