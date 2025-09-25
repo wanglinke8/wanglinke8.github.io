@@ -7,7 +7,12 @@
     <link rel="icon" type="image/x-icon" href="./img/坤坤.jpg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
@@ -16,10 +21,35 @@
             min-height: 100vh;
             position: relative;
         }
+
         /* 动态背景粒子效果 */
-        .background-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
-        .particle { position: absolute; background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, transparent 70%); border-radius: 50%; animation: float 6s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.7; } 50% { transform: translateY(-20px) rotate(180deg); opacity: 1; } }
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        .particle {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.7;
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+                opacity: 1;
+            }
+        }
 
         /* 头部导航 */
         header {
@@ -37,6 +67,7 @@
             align-items: center;
             gap: 2rem;
         }
+
         nav {
             display: flex;
             justify-content: center;
@@ -52,8 +83,9 @@
             justify-content: center;
             flex-wrap: wrap;
         }
+
         .nav-links a {
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.8); /* 默认颜色 */
             text-decoration: none;
             transition: all 0.3s ease;
             position: relative;
@@ -61,9 +93,11 @@
             font-size: 1.1rem;
             white-space: nowrap;
         }
+
         .nav-links a:hover {
             color: #667eea;
         }
+
         .nav-links a::after {
             content: '';
             position: absolute;
@@ -74,22 +108,97 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             transition: width 0.3s ease;
         }
+
         .nav-links a:hover::after {
             width: 100%;
         }
 
-        /* 欢迎信息区域 */
+        /* 修改：新增高亮样式 */
+        .nav-links a.active {
+            color: #667eea; /* 高亮颜色 */
+        }
+
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        /* 修改：用户信息区域包含下拉菜单 */
         .user-info {
             display: flex;
             align-items: center;
             gap: 1rem;
             flex-shrink: 0;
             white-space: nowrap;
+            position: relative; /* 为下拉菜单定位 */
         }
+
         .welcome-text {
             color: rgba(255, 255, 255, 0.9);
             font-size: 1rem;
         }
+
+        /* 修改：下拉按钮样式与退出按钮一致 */
+        .dropdown-button {
+            background: linear-gradient(135deg, #000000, #afa09f); /* 与logout-button背景相同 */
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 15px; /* 与logout-button圆角相同 */
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem; /* 按钮内图标和文字的间距 */
+        }
+
+        .dropdown-button:hover {
+            background: linear-gradient(135deg, #ee5a52, #ff6b6b); /* 与logout-button悬停背景相同 */
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4); /* 与logout-button悬停阴影相同 */
+        }
+
+        /* 下拉菜单样式 */
+        .dropdown-menu {
+            position: absolute;
+            top: 100%; /* 位于按钮下方 */
+            right: 0; /* 右对齐 */
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 0.5rem 0;
+            min-width: 160px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1001; /* 确保在最顶层 */
+        }
+
+        .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
         .logout-button {
             background: linear-gradient(135deg, #000000, #afa09f);
             color: white;
@@ -103,6 +212,7 @@
             letter-spacing: 0.5px;
             font-size: 0.9rem;
         }
+
         .logout-button:hover {
             background: linear-gradient(135deg, #ee5a52, #ff6b6b);
             transform: translateY(-2px);
@@ -115,18 +225,88 @@
         }
 
         /* 主要内容区域 */
-        main { padding-top: 140px; max-width: 1400px; margin: 0 auto; padding-left: 2rem; padding-right: 2rem; }
+        main {
+            padding-top: 140px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+
         /* 欢迎区域 */
-        .hero-section { text-align: center; margin-bottom: 4rem; padding: 4rem 0; }
-        .hero-title { font-size: 3.5rem; font-weight: 800; margin-bottom: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: glow 2s ease-in-out infinite alternate; }
-        @keyframes glow { from { filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.5)); } to { filter: drop-shadow(0 0 30px rgba(118, 75, 162, 0.8)); } }
-        .hero-subtitle { font-size: 1.3rem; color: rgba(255, 255, 255, 0.7); margin-bottom: 2rem; line-height: 1.6; }
+        .hero-section {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding: 4rem 0;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.5));
+            }
+            to {
+                filter: drop-shadow(0 0 30px rgba(118, 75, 162, 0.8));
+            }
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
         /* 功能模块网格 */
-        .modules-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 4rem; }
-        .module-wrapper { text-align: center; }
-        .module-icon { width: 80px; height: 80px; margin: 0 auto 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
-        .module-title { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .module-description { color: rgba(255, 255, 255, 0.7); line-height: 1.6; margin-bottom: 1rem; }
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .module-wrapper {
+            text-align: center;
+        }
+
+        .module-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .module-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .module-description {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
         .module-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
@@ -141,6 +321,7 @@
             position: relative;
             overflow: hidden;
         }
+
         /* 修复：为带背景的卡片添加一个伪元素来承载背景图 */
         .module-card.video-module::before,
         .module-card.game-module::before,
@@ -176,6 +357,7 @@
             background: rgba(255, 255, 255, 0.1);
             box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
         }
+
         .module-button {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -192,20 +374,32 @@
             text-decoration: none;
             display: inline-block;
         }
+
         .module-button:hover {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
         }
+
         /* 底部 */
-        footer { text-align: center; padding: 3rem 0; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 4rem; }
-        .footer-text { color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; }
+        footer {
+            text-align: center;
+            padding: 3rem 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 4rem;
+        }
+
+        .footer-text {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
 
         /* 响应式调整 */
         @media (max-width: 992px) {
             .nav-links {
                 gap: 1.8rem;
             }
+
             .nav-links a {
                 font-size: 1rem;
             }
@@ -215,19 +409,24 @@
             .nav-links {
                 gap: 1.5rem;
             }
+
             .nav-links a {
                 font-size: 0.95rem;
             }
+
             main {
                 padding-top: 120px;
             }
+
             .user-info {
                 gap: 0.7rem;
             }
+
             .welcome-text {
                 font-size: 0.9rem;
             }
-            .logout-button {
+
+            .logout-button, .dropdown-button {
                 padding: 0.4rem 0.8rem;
                 font-size: 0.8rem;
             }
@@ -256,8 +455,8 @@
                 justify-content: flex-end;
                 gap: 0.5rem; /* 减少内部间距 */
             }
-            /* --- 修改结束 --- */
 
+            /* --- 修改结束 --- */
             .nav-links {
                 gap: 1rem;
                 flex-wrap: wrap;
@@ -285,7 +484,7 @@
                 /* text-align: right; */
             }
 
-            .logout-button {
+            .logout-button, .dropdown-button {
                 padding: 0.3rem 0.6rem;
                 font-size: 0.75rem;
             }
@@ -329,9 +528,11 @@
             flex-direction: column;
             color: white;
         }
+
         #music-placeholder h2 {
             margin-bottom: 20px;
         }
+
         #back-to-home {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -344,6 +545,7 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+
         #back-to-home:hover {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             transform: translateY(-2px);
@@ -365,19 +567,32 @@
     <nav>
         <!-- 导航链接始终横向显示 -->
         <ul class="nav-links" id="navLinks">
-            <li><a href="#home">首页</a></li>
-            <li><a href="#chat">聊天</a></li>
-            <li><a href="#music">音乐</a></li>
-            <li><a href="#video">视频</a></li>
-            <li><a href="#games">游戏</a></li>
-            <li><a href="#contact">联系</a></li>
-            <li><a href="#entertainment">娱乐</a></li>
-            <li><a href="#blog">博客</a></li>
+            <li><a href="#home" class="nav-link">首页</a></li>
+            <li><a href="#chat" class="nav-link">聊天</a></li>
+            <li><a href="#music" class="nav-link">音乐</a></li>
+            <li><a href="#video" class="nav-link">视频</a></li>
+            <li><a href="#games" class="nav-link">游戏</a></li>
+            <li><a href="#contact" class="nav-link">联系</a></li>
+            <li><a href="#entertainment" class="nav-link">娱乐</a></li>
+            <li><a href="#blog" class="nav-link">博客</a></li>
         </ul>
     </nav>
-    <!-- 欢迎信息和退出按钮 -->
+    <!-- 修改：欢迎信息和下拉菜单按钮，以及退出按钮 -->
     <div class="user-info" id="userInfo">
         <span class="welcome-text" id="welcomeText">欢迎您：</span>
+        <!-- 新增的下拉按钮 -->
+        <div class="dropdown-container">
+            <button class="dropdown-button" id="dropdownButton">
+                <i class="fas fa-cog"></i> <!-- 可选图标 -->
+                <span>设置</span> <!-- 按钮文字 -->
+            </button>
+            <!-- 下拉菜单 -->
+            <div class="dropdown-menu" id="dropdownMenu">
+                <a href="xiuzi.html" class="dropdown-item">修改资料</a>
+                <a href="xiumi.html" class="dropdown-item">修改密码</a>
+            </div>
+        </div>
+        <!-- 退出按钮 -->
         <button class="logout-button" id="logoutButton">退出</button>
     </div>
 </header>
@@ -480,7 +695,7 @@
     }
 
     // 音乐模块跳转函数 (修改为跳转到 music.html)
-    function openMusic(){
+    function openMusic() {
         window.location.href = './music/music.html';
     }
 
@@ -691,15 +906,15 @@
         }
     }
 
-    function openContact(){
+    function openContact() {
         alert('QQ号：2838064158  V：fyx17801090532');
     }
 
-    function openEntertainment(){
+    function openEntertainment() {
         window.location.href = './za/心.html';
     }
 
-    function openBlog(){
+    function openBlog() {
         alert('📝 个人博客即将开启！');
     }
 
@@ -712,8 +927,39 @@
         }
     }
 
+    // --- 新增：导航栏高亮功能 ---
+    function updateActiveNavLink() {
+        const sections = document.querySelectorAll('.module-wrapper, .hero-section');
+        const navLinks = document.querySelectorAll('.nav-link'); // 选择所有带nav-link类的链接
+
+        let current = ''; // 存储当前可见区域的ID
+
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop - 200; // 调整偏移量，使高亮切换更早发生
+            const sectionHeight = section.offsetHeight;
+            const sectionId = section.getAttribute('id');
+
+            if (window.scrollY >= sectionTop && window.scrollY < sectionTop + sectionHeight) {
+                current = sectionId;
+            }
+        });
+
+        // 移除所有链接的active类
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+        });
+
+        // 为当前区域对应的链接添加active类
+        if (current) {
+            const activeLink = document.querySelector(`.nav-link[href="#${current}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+    }
+
     // 页面加载完成后执行
-    document.addEventListener('DOMContentLoaded', function(){
+    document.addEventListener('DOMContentLoaded', function () {
         // 1. 检查登录状态
         const token = localStorage.getItem('token');
         const name = localStorage.getItem('name');
@@ -745,7 +991,7 @@
         // 为返回主页按钮添加点击事件
         const backButton = document.getElementById('back-to-home');
         if (backButton) {
-            backButton.addEventListener('click', function() {
+            backButton.addEventListener('click', function () {
                 document.getElementById('music-placeholder').style.display = 'none';
             });
         }
@@ -756,9 +1002,26 @@
             logoutButton.addEventListener('click', logout);
         }
 
-        // 导航链接平滑滚动
+        // --- 新增：处理下拉菜单 ---
+        const dropdownButton = document.getElementById('dropdownButton');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+
+        // 点击按钮切换菜单显示/隐藏
+        dropdownButton.addEventListener('click', function (e) {
+            e.stopPropagation(); // 阻止事件冒泡，防止点击按钮后立即触发document的click事件
+            dropdownMenu.classList.toggle('show');
+        });
+
+        // 点击文档其他地方隐藏菜单
+        document.addEventListener('click', function (e) {
+            if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        // --- 新增：为导航链接添加nav-link类并绑定平滑滚动 ---
         document.querySelectorAll('#navLinks a').forEach(link => {
-            link.addEventListener('click', function(e) {
+            link.addEventListener('click', function (e) {
                 e.preventDefault();
                 const target = this.getAttribute('href');
                 if (target === '#home') {
@@ -769,8 +1032,11 @@
             });
         });
 
+        // --- 新增：监听滚动事件以更新导航栏高亮 ---
+        window.addEventListener('scroll', updateActiveNavLink);
+
         // 滚动时改变头部背景
-        window.addEventListener('scroll', function(){
+        window.addEventListener('scroll', function () {
             const header = document.querySelector('header');
             header.style.background = window.scrollY > 100 ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.1)';
         });
