@@ -50,7 +50,7 @@ jwt:
 
 file:
   upload:
-    path: /home/www/wwwroot/java-app/uploads/
+    path: /www/wwwroot/java-app/uploads/
   access:
     path: /uploads
 

@@ -204,7 +204,7 @@
         <button type="submit" class="save-button">保存修改</button>
     </form>
     <div id="messageArea" class="message-area"></div>
-    <a href="index.html" class="back-to-home">返回主页</a>
+    <a href="index.html" class="back-to-home">取消修改</a>
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -275,7 +275,7 @@
                 const result = await response.json();
                 if (response.ok) {
                     // 更新成功
-                    messageArea.innerHTML = '<p class="success-message">资料更新成功！</p>';
+                    messageArea.innerHTML = '<p class="success-message">资料更新成功！请等待跳转</p>';
                     // 更新localStorage中的信息
                     localStorage.setItem('name', newName);
                     localStorage.setItem('zhanghao', newZhanghao);

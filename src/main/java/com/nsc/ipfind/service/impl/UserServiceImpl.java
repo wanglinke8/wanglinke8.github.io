@@ -10,8 +10,11 @@ import com.nsc.ipfind.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -117,14 +120,33 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 Files.copy(avatarFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
                 // 4e. 构造新的头像访问URL
-                if (accessPath.endsWith("/")) {
-                    newAvatarUrl = accessPath + uniqueFilename;
-                } else {
-                    newAvatarUrl = accessPath + "/" + uniqueFilename;
+                // 4e. 构造新的头像访问URL - 修改此处
+                // 获取当前请求的 HttpServletRequest 对象
+                ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+                HttpServletRequest request = attributes.getRequest();
+                String scheme = request.getScheme(); // "http" or "https"
+                String serverName = request.getServerName(); // "49.233.45.219"
+                int serverPort = request.getServerPort(); // 8080
+                String contextPath = request.getContextPath(); // 通常是 "" 或 "/your-app-name"
+
+                // 构造基础 URL
+                StringBuilder baseUrl = new StringBuilder(scheme).append("://").append(serverName);
+                if ((scheme.equals("http") && serverPort != 80) || (scheme.equals("https") && serverPort != 443)) {
+                    baseUrl.append(":").append(serverPort);
                 }
+                baseUrl.append(contextPath);
+
+                // 确保 accessPath 以 "/" 开头
+                String finalAccessPath = accessPath.startsWith("/") ? accessPath : "/" + accessPath;
+                // 确保 finalAccessPath 不以 "/" 结尾，以避免双斜杠
+                if (finalAccessPath.endsWith("/")) {
+                    finalAccessPath = finalAccessPath.substring(0, finalAccessPath.length() - 1);
+                }
+                // 拼接最终的完整 URL
+                newAvatarUrl = baseUrl.toString() + finalAccessPath + "/" + uniqueFilename;
 
                 System.out.println("头像上传成功，保存路径: " + filePath.toString());
-                System.out.println("新头像URL: " + newAvatarUrl);
+                System.out.println("新头像完整URL: " + newAvatarUrl);
 
             } catch (IOException e) {
                 throw new RuntimeException("头像上传失败", e);

@@ -10,7 +10,7 @@ import java.io.File;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
-    @Value("${file.upload.path:/home/www/wwwroot/java-app/uploads/}")
+    @Value("${file.upload.path:/www/wwwroot/java-app/uploads/}")
     private String uploadPath;
 
     @Value("${file.access.path:/uploads/}")

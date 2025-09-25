@@ -77,7 +77,7 @@ public class UserController {
     }
 
 
-    // 新增：更新用户信息接口
+    //更新用户信息接口
     @PostMapping("/update")
     public ResponseEntity<?> updateProfile(
             @RequestHeader("Authorization") String authHeader, // 从请求头获取Token
