@@ -134,7 +134,6 @@
         }
         return true;
     }
-
     // 获取用户列表
     async function fetchUsers() {
         const loadingElement = document.getElementById('loading');
@@ -168,32 +167,27 @@
             loadingElement.style.display = 'none';
         }
     }
-
     // 展示用户列表
     function displayUsers(users) {
         const userListElement = document.getElementById('userList');
         userListElement.innerHTML = ''; // 清空现有内容
-
         if (!users || users.length === 0) {
             userListElement.innerHTML = '<li class="user-item" style="justify-content: center; color: #999;">暂无其他用户</li>';
             userListElement.style.display = 'block';
             return;
         }
-
         users.forEach(user => {
             const userItem = document.createElement('li');
             userItem.className = 'user-item';
-
-            // 点击事件：跳转到聊天页面
+            // 点击事件：跳转到聊天页面 - 修改这里，添加 avatarurl 参数
             userItem.onclick = () => {
-                // 将被选中用户的ID和姓名传递给聊天页面
-                window.location.href = `some.html?targetUserId=${user.id}&targetUserName=${encodeURIComponent(user.name)}`;
+                // 将被选中用户的ID、姓名和头像URL传递给聊天页面
+                const avatarParam = user.avatarurl ? `&targetUserAvatarUrl=${encodeURIComponent(user.avatarurl)}` : '';
+                window.location.href = `some.html?targetUserId=${user.id}&targetUserName=${encodeURIComponent(user.name)}${avatarParam}`;
             };
-
             // 创建头像容器
             const avatarContainer = document.createElement('div');
             avatarContainer.className = 'avatar';
-
             // 检查是否有 avatarurl
             if (user.avatarurl && user.avatarurl.trim() !== '') {
                 // 如果有头像URL，创建图片元素
@@ -217,38 +211,30 @@
                 defaultIcon.textContent = (user.name || '?').charAt(0).toUpperCase(); // 使用用户名首字母
                 avatarContainer.appendChild(defaultIcon);
             }
-
             // 创建用户详情容器
             const userDetailsContainer = document.createElement('div');
             userDetailsContainer.className = 'user-details';
             const usernameSpan = document.createElement('span');
             usernameSpan.className = 'username';
             usernameSpan.textContent = user.name || '未知用户';
-
             userDetailsContainer.appendChild(usernameSpan);
-
             // 组装用户信息部分
             const userInfoContainer = document.createElement('div');
             userInfoContainer.className = 'user-info';
             userInfoContainer.appendChild(avatarContainer);
             userInfoContainer.appendChild(userDetailsContainer);
-
             // 创建操作按钮
             const actionButton = document.createElement('button');
             actionButton.className = 'action-button';
             actionButton.textContent = '聊天';
-
             // 将信息部分和按钮添加到列表项
             userItem.appendChild(userInfoContainer);
             userItem.appendChild(actionButton);
-
             userListElement.appendChild(userItem);
         });
-
         // 显示用户列表
         userListElement.style.display = 'block';
     }
-
     // 页面加载完成后执行
     document.addEventListener('DOMContentLoaded', function() {
         // 1. 检查登录状态

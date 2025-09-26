@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星座运势 - 探索你的命运之光</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a0933 50%, #0d1b2a 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 星空背景动画 */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .shooting-star {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(45deg, #fff, transparent);
+            animation: shooting 3s linear infinite;
+        }
+
+        @keyframes shooting {
+            0% {
+                transform: translateX(-100px) translateY(100px);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(300px) translateY(-100px);
+                opacity: 0;
+            }
+        }
+
+        /* 主要内容 */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #ffd700, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            color: #a0a0a0;
+            opacity: 0.9;
+        }
+
+        .selection-panel {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .select-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .select-group label {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        select {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 150px;
+        }
+
+        select option {
+            background: #1a0933;
+            color: white;
+        }
+
+        .query-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .query-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2em;
+            color: #ffd700;
+        }
+
+        .constellation-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .constellation-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .constellation-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .constellation-info h2 {
+            color: #ffd700;
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .constellation-symbol {
+            font-size: 2em;
+            margin: 0 10px;
+        }
+
+        .constellation-date {
+            color: #a0a0a0;
+            font-size: 1.1em;
+        }
+
+        .fortune-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .fortune-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .fortune-item strong {
+            color: #4ecdc4;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .fortune-details {
+            margin-top: 30px;
+        }
+
+        .fortune-section {
+            background: rgba(255, 255, 255, 0.03);
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 4px solid #ffd700;
+        }
+
+        .fortune-section h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .fortune-section p {
+            line-height: 1.6;
+            color: #e0e0e0;
+            margin-bottom: 10px;
+        }
+
+        .constellation-details {
+            margin-top: 30px;
+        }
+
+        .detail-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            border-left: 4px solid #4ecdc4;
+        }
+
+        .detail-section h3 {
+            color: #4ecdc4;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .detail-items {
+            display: grid;
+            gap: 10px;
+        }
+
+        .detail-item {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 10px 15px;
+            border-radius: 8px;
+            border-left: 2px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .detail-item strong {
+            color: #ffd700;
+            margin-right: 10px;
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 40px;
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 107, 107, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .selection-panel {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .constellation-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .fortune-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- 星空背景 -->
+<div class="stars" id="stars"></div>
+
+<div class="container">
+    <div class="header">
+        <h1>✨ 星座运势探索 ✨</h1>
+        <p>穿越星空，发现属于你的命运密码</p>
+    </div>
+
+    <div class="selection-panel">
+        <div class="select-group">
+            <label for="constellation">选择星座</label>
+            <select id="constellation">
+                <option value="Aries">白羊座 ♈</option>
+                <option value="Taurus">金牛座 ♉</option>
+                <option value="Gemini">双子座 ♊</option>
+                <option value="Cancer">巨蟹座 ♋</option>
+                <option value="Leo">狮子座 ♌</option>
+                <option value="Virgo">处女座 ♍</option>
+                <option value="Libra">天秤座 ♎</option>
+                <option value="Scorpio">天蝎座 ♏</option>
+                <option value="Sagittarius">射手座 ♐</option>
+                <option value="Capricorn">摩羯座 ♑</option>
+                <option value="Aquarius">水瓶座 ♒</option>
+                <option value="Pisces">双鱼座 ♓</option>
+            </select>
+        </div>
+        <div class="select-group">
+            <label for="type">运势类型</label>
+            <select id="type">
+                <option value="today">今日运势</option>
+                <option value="tomorrow">明日运势</option>
+                <option value="weeks">本周运势</option>
+                <option value="month">本月运势</option>
+                <option value="years">年度运势</option>
+            </select>
+        </div>
+        <button class="query-btn" onclick="queryFortune()">🔮 查看运势</button>
+    </div>
+
+    <div id="result-container"></div>
+</div>
+
+<script>
+    // 创建星空背景
+    function createStars() {
+        const starsContainer = document.getElementById('stars');
+
+        // 创建静态星星
+        for (let i = 0; i < 200; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.width = Math.random() * 3 + 1 + 'px';
+            star.style.height = star.style.width;
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
+        }
+
+        // 创建流星
+        for (let i = 0; i < 3; i++) {
+            const shootingStar = document.createElement('div');
+            shootingStar.className = 'shooting-star';
+            shootingStar.style.left = Math.random() * 100 + '%';
+            shootingStar.style.top = Math.random() * 50 + '%';
+            shootingStar.style.width = Math.random() * 100 + 50 + 'px';
+            shootingStar.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(shootingStar);
+        }
+    }
+
+    // 查询运势
+    async function queryFortune() {
+        const constellation = document.getElementById('constellation').value;
+        const type = document.getElementById('type').value;
+        const resultContainer = document.getElementById('result-container');
+
+        resultContainer.innerHTML = '<div class="loading">🌟 正在为您解读星象... 🌟</div>';
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/constellation?constellation=${constellation}&type=${type}`);
+            const data = await response.json();
+
+            if (data.code === 200) {
+                displayFortune(data.data);
+            } else {
+                resultContainer.innerHTML = `<div class="error-message">获取运势失败: ${data.msg}</div>`;
+            }
+        } catch (error) {
+            resultContainer.innerHTML = `<div class="error-message">网络连接失败，请检查后端服务是否正常运行</div>`;
+        }
+    }
+
+    // 显示运势结果
+    function displayFortune(data) {
+        const { info, detail } = data;
+        const type = document.getElementById('type').value;
+        const fortuneData = detail[type];
+
+        let html = `
+                <div class="constellation-card">
+                    <div class="constellation-header">
+                        <img src="${info.avatar}" alt="${info.name}" class="constellation-avatar" onerror="this.style.display='none'">
+                        <div class="constellation-info">
+                            <h2>${info.name} <span class="constellation-symbol">${info.symbol}</span></h2>
+                            <div class="constellation-date">${info.date}</div>
+                        </div>
+                    </div>
+
+                    <div class="fortune-summary">
+            `;
+
+        // 显示运势摘要信息
+        fortuneData.info.forEach(item => {
+            const [key, value] = item.split('：');
+            html += `
+                    <div class="fortune-item">
+                        <strong>${key}</strong>
+                        <span>${value}</span>
+                    </div>
+                `;
+        });
+
+        html += `</div><div class="fortune-details">`;
+
+        // 显示详细运势
+        fortuneData.list.forEach(item => {
+            html += `
+                    <div class="fortune-section">
+                        <h3>${item.title}</h3>
+                        <p>${item.desc}</p>
+                    </div>
+                `;
+        });
+
+        html += `</div>`;
+
+        // 显示星座详细信息
+        if (info.outer && info.outer.length > 0) {
+            html += `<div class="constellation-details">`;
+            info.outer.forEach(section => {
+                html += `
+                        <div class="detail-section">
+                            <h3>${section.title}</h3>
+                    `;
+
+                if (section.dec) {
+                    html += `<p>${section.dec}</p>`;
+                }
+
+                if (section.items && section.items.length > 0) {
+                    html += `<div class="detail-items">`;
+                    section.items.forEach(item => {
+                        html += `
+                                <div class="detail-item">
+                                    <strong>${item.title}：</strong>${item.dec}
+                                </div>
+                            `;
+                    });
+                    html += `</div>`;
+                }
+
+                html += `</div>`;
+            });
+            html += `</div>`;
+        }
+
+        html += `</div>`;
+        document.getElementById('result-container').innerHTML = html;
+    }
+
+    // 页面加载时创建星空背景和默认查询
+    window.onload = function() {
+        createStars();
+        queryFortune();
+    };
+</script>
+</body>
+</html>

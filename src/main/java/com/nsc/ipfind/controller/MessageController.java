@@ -41,8 +41,6 @@ public class MessageController {
     @GetMapping("/history")
     public ResponseEntity<Map<String, Object>> getChatHistory(
             @RequestParam("targetUserId") Integer targetUserId,
-            @RequestParam(value = "page", defaultValue = "1") Integer page,
-            @RequestParam(value = "size", defaultValue = "10") Integer size,
             HttpServletRequest request) {
 
         Map<String, Object> response = new HashMap<>();
@@ -86,8 +84,7 @@ public class MessageController {
                 return ResponseEntity.status(400).body(response);
             }
 
-            // 3. 查询聊天历史记录 - 分页查询
-            // 按时间戳降序排列，然后取指定页的数据
+            // 3. 查询所有聊天历史记录 - 移除分页，获取所有记录
             List<Message> chatHistory = messageService.lambdaQuery()
                     // 第一组条件: (sender_id = currentUserId AND receiver_id = targetUserId)
                     .nested(w1 -> w1.eq(Message::getSenderId, currentUserId)
@@ -97,34 +94,14 @@ public class MessageController {
                     // 第二组条件: (sender_id = targetUserId AND receiver_id = currentUserId)
                     .nested(w2 -> w2.eq(Message::getSenderId, targetUserId)
                             .eq(Message::getReceiverId, currentUserId))
-                    .orderByDesc(Message::getTimestamp) // 先按时间降序
-                    .page(new Page<>(page, size))
-                    .getRecords();
+                    .orderByAsc(Message::getTimestamp) // 按时间升序排列
+                    .list(); // 获取所有记录
 
-            // 重新按时间升序排列（因为前端需要按时间顺序显示）
-            chatHistory.sort((a, b) -> {
-                return a.getTimestamp().compareTo(b.getTimestamp());
-            });
-
-            // 4. 检查是否还有更多数据
-            Long total = messageService.lambdaQuery()
-                    .nested(w1 -> w1.eq(Message::getSenderId, currentUserId)
-                            .eq(Message::getReceiverId, targetUserId))
-                    .or()
-                    .nested(w2 -> w2.eq(Message::getSenderId, targetUserId)
-                            .eq(Message::getReceiverId, currentUserId))
-                    .count();
-
-            boolean hasMore = total > (page * size);
-
-            // 5. 构造成功响应
+            // 4. 构造成功响应
             response.put("code", 200);
             response.put("message", "获取成功");
             response.put("data", chatHistory);
-            response.put("hasMore", hasMore);
-            response.put("currentPage", page);
-            response.put("pageSize", size);
-            response.put("total", total);
+            response.put("total", chatHistory.size());
 
             return ResponseEntity.ok(response);
 
