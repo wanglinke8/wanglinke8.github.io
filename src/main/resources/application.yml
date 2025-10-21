@@ -46,7 +46,7 @@ management:
 
 jwt:
   secret: MySuperSecretKey_2025!@#$%^&*()
-  expiration: 86400
+  expiration: 604800
 
 file:
   upload:

@@ -991,60 +991,61 @@
     }
 
     // 页面加载完成后执行
-    document.addEventListener('DOMContentLoaded', function () {
-        // 1. 检查登录状态
+    document.addEventListener('DOMContentLoaded', async function () {
         const token = localStorage.getItem('token');
-        const name = localStorage.getItem('name');
-        const avatarurl = localStorage.getItem('avatarurl'); // 获取头像URL
 
         if (!token) {
-            alert('未登录，请登录');
+            alert('未登录，请先登录');
             window.location.href = 'login.html';
             return;
-        } else {
-            document.getElementById('welcomeText').textContent = `欢迎您：${name}`;
-            document.getElementById('userInfo').style.display = 'flex';
-
-            // 显示用户头像
-            const userAvatarElement = document.getElementById('userAvatar');
-            if (avatarurl && avatarurl.trim() !== '') {
-                userAvatarElement.src = avatarurl;
-                userAvatarElement.alt = `${name}的头像`;
-            } else {
-                // 如果没有头像URL，显示默认图标
-                userAvatarElement.innerHTML = '<i class="fas fa-user default-avatar-icon"></i>';
-                userAvatarElement.alt = '默认头像';
-            }
         }
 
-        // 2. 初始化其他功能
+        try {
+            const res = await fetch('/api/auth/verify', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            });
+
+            if (res.ok) {
+                const userData = await res.json();
+                document.getElementById('welcomeText').textContent = `欢迎您：${userData.name}`;
+
+                const userAvatarElement = document.getElementById('userAvatar');
+                if (userData.avatarurl && userData.avatarurl.trim() !== '') {
+                    userAvatarElement.src = userData.avatarurl;
+                    userAvatarElement.alt = `${userData.name}的头像`;
+                } else {
+                    userAvatarElement.innerHTML = '<i class="fas fa-user default-avatar-icon"></i>';
+                    userAvatarElement.alt = '默认头像';
+                }
+
+                document.getElementById('userInfo').style.display = 'flex';
+            } else {
+                // Token 无效：清除并跳转登录
+                localStorage.removeItem('token');
+                alert('登录已过期，请重新登录');
+                window.location.href = 'login.html';
+            }
+        } catch (err) {
+            console.error('验证登录状态失败:', err);
+            alert('网络错误，请重试');
+            window.location.href = 'login.html';
+        }
+
+        // 初始化其他功能（粒子、事件等）
         createParticles();
 
-        // 为视频按钮添加点击事件
+        // 绑定按钮事件（视频、音乐、退出等）
         const videoButton = document.getElementById('videoButton');
-        if (videoButton) {
-            videoButton.addEventListener('click', openVideo);
-        }
+        if (videoButton) videoButton.addEventListener('click', openVideo);
 
-        // 为音乐按钮添加点击事件
         const musicButton = document.getElementById('musicButton');
-        if (musicButton) {
-            musicButton.addEventListener('click', openMusic);
-        }
+        if (musicButton) musicButton.addEventListener('click', openMusic);
 
-        // 为返回主页按钮添加点击事件
-        const backButton = document.getElementById('back-to-home');
-        if (backButton) {
-            backButton.addEventListener('click', function () {
-                document.getElementById('music-placeholder').style.display = 'none';
-            });
-        }
-
-        // 为退出按钮添加点击事件
         const logoutButton = document.getElementById('logoutButton');
-        if (logoutButton) {
-            logoutButton.addEventListener('click', logout);
-        }
+        if (logoutButton) logoutButton.addEventListener('click', logout);
 
         // --- 新增：处理下拉菜单 ---
         const dropdownButton = document.getElementById('dropdownButton');

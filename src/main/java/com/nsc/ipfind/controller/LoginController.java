@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -93,5 +94,40 @@ public class LoginController {
         String password = userByUsername.getPassword();
         return password;
 
+    }
+
+    @GetMapping("/verify")
+    public ResponseEntity<?> verifyToken(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).build();
+        }
+
+        String token = authHeader.substring(7); // 去掉 "Bearer "
+
+        try {
+            if (!jwtUtil.validateToken(token)) {
+                return ResponseEntity.status(401).build();
+            }
+
+            String zhanghao = jwtUtil.getZhanghaoFromToken(token);
+            User user = userService.getUserByUsername(zhanghao);
+            if (user == null) {
+                return ResponseEntity.status(401).build();
+            }
+
+            // 返回用户基本信息（供前端显示）
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", user.getId());
+            response.put("zhanghao", user.getZhanghao());
+            response.put("name", user.getName());
+            response.put("avatarurl", user.getAvatarurl());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(401).build();
+        }
     }
 }
