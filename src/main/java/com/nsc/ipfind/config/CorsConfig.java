@@ -20,7 +20,7 @@ public class CorsConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(Arrays.asList("http://39.97.174.238:8080")); // 允许的源
+        config.setAllowedOriginPatterns(Arrays.asList("http://39.97.174.238:8080", "http://localhost:*", "http://127.0.0.1:*")); // 允许的源
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("*"));
         config.setAllowCredentials(true); // 是否允许携带凭证（如 Cookie）

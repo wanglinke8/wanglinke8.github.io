@@ -105,6 +105,12 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.nuonuo.sdk</groupId>
+            <artifactId>nuonuo-open-sdk</artifactId>
+            <version>1.0.5.2</version>
+        </dependency>
     </dependencies>
 
     <build>

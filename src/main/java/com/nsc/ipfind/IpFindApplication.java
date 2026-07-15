@@ -16,8 +16,6 @@ public class IpFindApplication {
     public static void main(String[] args) {
         SpringApplication.run(IpFindApplication.class, args);
         System.out.println("===========================================");
-        System.out.println("IP城市定位服务启动成功！");
-        System.out.println("访问地址：http://39.97.174.238:8080/api/location/current");
         System.out.println("===========================================");
     }
 }

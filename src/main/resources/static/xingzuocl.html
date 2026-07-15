@@ -395,7 +395,7 @@
         resultContainer.innerHTML = '<div class="loading">🌟 正在为您解读星象... 🌟</div>';
 
         try {
-            const response = await fetch(`http://localhost:8080/api/constellation?constellation=${constellation}&type=${type}`);
+            const response = await fetch(`https://lnkwang.top/api/constellation?constellation=${constellation}&type=${type}`);
             const data = await response.json();
 
             if (data.code === 200) {
