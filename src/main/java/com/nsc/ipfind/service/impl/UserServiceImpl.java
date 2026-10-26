@@ -149,7 +149,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 System.out.println("新头像完整URL: " + newAvatarUrl);
 
             } catch (IOException e) {
-                throw new RuntimeException("头像上传失败", e);
+                e.printStackTrace();
+                System.out.println("头像上传失败, uploadPath=" + uploadPath + ", 原因=" + e.getClass().getName() + ": " + e.getMessage());
+                throw new RuntimeException("头像上传失败: " + e.getClass().getSimpleName() + " - " + e.getMessage(), e);
             }
         }
         // 5. 更新用户信息到数据库
