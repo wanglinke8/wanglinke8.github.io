@@ -31,13 +31,11 @@
         </dependency>
 
         <!-- MyBatis Plus Boot Starter - 如果不需要数据库功能可以注释掉 -->
-
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
             <version>3.5.3.1</version>
         </dependency>
-
 
         <!-- MySQL数据库驱动 - 如果不需要数据库功能可以注释掉 -->
         <dependency>
@@ -73,11 +71,11 @@
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
-  <!--lombok-->
+        <!-- lombok 修改点1：移除版本号，添加 provided -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.24</version>
+            <scope>provided</scope>
         </dependency>
 
         <!--import com.alibaba.fastjson.JSON;-->
@@ -118,6 +116,22 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- 修改点2：添加编译插件，确保 Lombok 生效 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <!-- 关键：显式指定一个较新的版本 -->
+                            <version>1.18.30</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
         </plugins>
     </build>

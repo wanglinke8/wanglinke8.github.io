@@ -11,13 +11,12 @@ import org.springframework.context.annotation.ComponentScan;
  * 排除数据源自动配置，专注于IP定位功能
  */
 @SpringBootApplication
-@ComponentScan({"com.nsc.ipfind", "com.nsc.cs"})
-@MapperScan({"com.nsc.ipfind.mapper", "com.nsc.cs.mapper"})
+@MapperScan("com.nsc.ipfind.mapper")
 public class IpFindApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(IpFindApplication.class, args);
         System.out.println("===========================================");
-        System.out.println("===========================================");
+        System.out.println("http://localhost:8080/login.html");
     }
 }
