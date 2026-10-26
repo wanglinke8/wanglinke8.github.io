@@ -8,9 +8,9 @@ spring:
   application:
     name: ip-location-service
   datasource:
-    url: jdbc:mysql://49.233.45.219:3306/myproject?useUnicode=true&characterEncoding=utf-8&useSSL=false
-    username: myproject
-    password: lnkwang
+    url: jdbc:mysql://112.125.90.44:3306/roco?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: root
+    password: wang130828
     driver-class-name: com.mysql.cj.jdbc.Driver
   webflux:
     timeout: 5000
